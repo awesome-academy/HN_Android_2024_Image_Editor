@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">Image Editor</string>
+    <string name="error">Có lỗi xảy ra</string>
 </resources>
