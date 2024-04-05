@@ -1,8 +1,6 @@
 package com.example.imageEditor
 
 import android.util.Log
-import com.example.imageEditor.apiService.ApiImpl
-import com.example.imageEditor.apiService.NetworkService
 import com.example.imageEditor.base.BaseActivity
 import com.example.imageEditor.databinding.ActivityMainBinding
 import com.example.imageEditor.model.CollectionModel
@@ -24,6 +22,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), HomeContract.View {
     }
 
     override fun getContentLayout() = R.layout.activity_main
+
     override fun setupCollections(list: List<CollectionModel>) {
         Log.e(">>>>>>>", list.toString())
     }

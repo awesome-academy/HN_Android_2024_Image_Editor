@@ -15,5 +15,5 @@ data class CollectionModel(
     val title: String,
     val totalPhotos: Int,
     val updatedAt: String,
-    val user: User
+    val user: User,
 )

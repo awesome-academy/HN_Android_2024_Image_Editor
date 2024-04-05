@@ -2,14 +2,15 @@ package com.example.imageEditor
 
 import android.net.Uri
 import java.io.BufferedReader
-import java.io.IOException
 import java.io.InputStream
 import java.io.InputStreamReader
 import java.net.HttpURLConnection
 import java.net.URL
 
-
-fun getMethodHttp(endPoint: String, params: Map<String, String?>): String {
+fun getMethodHttp(
+    endPoint: String,
+    params: Map<String, String?>,
+): String {
     var conn: HttpURLConnection? = null
     try {
         val builtURI = Uri.parse(BASE_URL + endPoint).buildUpon()
@@ -20,13 +21,13 @@ fun getMethodHttp(endPoint: String, params: Map<String, String?>): String {
         val url = URL(builtURI.build().toString())
         conn = url.openConnection() as HttpURLConnection
         conn.setRequestProperty(
-            "Content-Type",
-            "application/json"
-        ) // The format of the content we're sending to the server
-        conn.setRequestProperty("Accept", "application/json")
+            CONTENT_TYPE,
+            "application/json",
+        )
+        conn.setRequestProperty(ACCEPT, "application/json")
         conn.setRequestProperty(
-            "Authorization",
-            "Client-ID K3hBadFpyF5VgNn4-n6dv116IEHWHtkfF-Mg5aRoryc"
+            AUTHORIZATION,
+            ACCESS_TOKEN,
         )
         conn.connect()
 
@@ -39,7 +40,6 @@ fun getMethodHttp(endPoint: String, params: Map<String, String?>): String {
 }
 
 fun convertInputStreamToString(inputStream: InputStream): String {
-    // Đọc dữ liệu từ InputStream và chuyển đổi thành chuỗi JSON
     val stringBuilder = StringBuilder()
     BufferedReader(InputStreamReader(inputStream)).use { reader ->
         var line: String? = reader.readLine()

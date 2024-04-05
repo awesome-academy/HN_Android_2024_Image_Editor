@@ -6,8 +6,9 @@ import com.example.imageEditor.base.OnListenProcess
 import com.example.imageEditor.model.CollectionModel
 
 class HomeRepository(onListenProcess: OnListenProcess) {
-    private val networkService = NetworkService.getInstance(ApiImpl(onListenProcess))
-    fun getCollections(page: Int):List<CollectionModel> {
+    private val networkService = NetworkService.getInstance(ApiImpl.getInstance(onListenProcess))
+
+    fun getCollections(page: Int): List<CollectionModel> {
         return networkService.getCollections(page)
     }
 

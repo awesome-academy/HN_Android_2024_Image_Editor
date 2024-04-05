@@ -8,6 +8,5 @@ data class AlternativeSlugs(
     val it: String,
     val ja: String,
     val ko: String,
-    val pt: String
+    val pt: String,
 )
-

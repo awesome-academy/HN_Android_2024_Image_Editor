@@ -22,5 +22,5 @@ data class CoverPhoto(
     val updatedAt: String,
     val urls: Urls,
     val user: User,
-    val width: Int
+    val width: Int,
 )

@@ -7,5 +7,5 @@ data class Source(
     val metaDescription: String,
     val metaTitle: String,
     val subtitle: String,
-    val title: String
+    val title: String,
 )

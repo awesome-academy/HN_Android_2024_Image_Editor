@@ -1,7 +1,6 @@
 package com.example.imageEditor.base
 
 import android.os.Bundle
-import android.os.PersistableBundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.Window
@@ -32,6 +31,7 @@ abstract class BaseActivity<BINDING : ViewDataBinding> : AppCompatActivity(), On
     abstract fun initView()
 
     abstract fun getContentLayout(): Int
+
     override fun onProgress() {
         loadingDialog.show()
     }

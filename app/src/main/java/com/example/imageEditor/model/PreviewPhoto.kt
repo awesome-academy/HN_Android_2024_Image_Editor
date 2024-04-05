@@ -7,5 +7,5 @@ data class PreviewPhoto(
     val id: String,
     val slug: String,
     val updatedAt: String,
-    val urls: Urls
+    val urls: Urls,
 )

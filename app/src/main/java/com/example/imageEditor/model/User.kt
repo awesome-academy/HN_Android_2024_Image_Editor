@@ -20,5 +20,5 @@ data class User(
     val totalPromotedPhotos: Int,
     val twitterUsername: Any,
     val updatedAt: String,
-    val username: String
+    val username: String,
 )
