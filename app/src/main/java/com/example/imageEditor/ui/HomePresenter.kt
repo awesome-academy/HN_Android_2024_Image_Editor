@@ -3,11 +3,12 @@ package com.example.imageEditor.ui
 import com.example.imageEditor.apiService.NetworkService
 import com.example.imageEditor.base.BasePresenter
 import com.example.imageEditor.model.CollectionModel
+import com.example.imageEditor.repository.HomeRepository
 
-class HomePresenter(private val networkService: NetworkService) : HomeContract.Presenter {
+class HomePresenter(private val homeRepository: HomeRepository) : HomeContract.Presenter {
     private var view: HomeContract.View? = null
     override fun getCollections(page: Int) {
-        view?.setupCollections(networkService.getCollections(0))
+        view?.setupCollections(homeRepository.getCollections(0))
     }
 
     override fun onStart() {

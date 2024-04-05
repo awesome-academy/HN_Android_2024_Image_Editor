@@ -18,8 +18,9 @@ abstract class BaseActivity<BINDING : ViewDataBinding> : AppCompatActivity(), On
     private lateinit var _binding: BINDING
     val binding get() = _binding
     private val loadingDialog by lazy { setupProgressDialog() }
-    override fun onCreate(savedInstanceState: Bundle?, persistentState: PersistableBundle?) {
-        super.onCreate(savedInstanceState, persistentState)
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
         _binding = DataBindingUtil.setContentView(this, getContentLayout())
         setContentView(_binding.root)
         initView()
