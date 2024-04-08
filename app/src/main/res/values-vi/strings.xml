@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Image Editor</string>
+    <string name="error">Có lỗi xảy ra</string>
+    <string name="loading">Đang tải…</string>
+</resources>
