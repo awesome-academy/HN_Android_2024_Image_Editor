@@ -1,6 +1,8 @@
 package com.example.imageEditor.model
 
+import com.google.gson.annotations.SerializedName
+
 data class TopicSubmissions(
-    val foodDrink: FoodDrink,
-    val holidays: Holidays,
+    @SerializedName("blue")
+    val blue: Blue,
 )
