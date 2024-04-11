@@ -8,4 +8,5 @@
     <string name="add">Tạo</string>
     <string name="like">Yêu thích</string>
     <string name="avatar">Hình đại diện</string>
+    <string name="liked_by_others">Thích bởi %1$s người</string>
 </resources>

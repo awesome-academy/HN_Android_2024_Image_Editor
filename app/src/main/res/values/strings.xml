@@ -7,4 +7,5 @@
     <string name="add">Add</string>
     <string name="like">Like</string>
     <string name="avatar">Avatar</string>
+    <string name="liked_by_others">Liked by %1$s others</string>
 </resources>

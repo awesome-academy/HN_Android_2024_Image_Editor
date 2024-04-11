@@ -1,9 +1,9 @@
-package com.example.imageEditor.ui
+package com.example.imageEditor.ui.home
 
 import com.example.imageEditor.repository.HomeRepository
 
-class MainPresenter(private val homeRepository: HomeRepository) : MainContract.Presenter {
-    private var view: MainContract.View? = null
+class HomePresenter(private val homeRepository: HomeRepository) : HomeContract.Presenter {
+    private var view: HomeContract.View? = null
 
     override fun getCollections(page: Int) {
         view?.setupCollections(homeRepository.getCollections(0))
@@ -15,7 +15,7 @@ class MainPresenter(private val homeRepository: HomeRepository) : MainContract.P
     override fun onStop() {
     }
 
-    override fun setView(view: MainContract.View?) {
+    override fun setView(view: HomeContract.View?) {
         this.view = view
     }
 }
