@@ -1,12 +1,13 @@
 package com.example.imageEditor.model
 
+import androidx.core.text.HtmlCompat
 import com.google.gson.annotations.SerializedName
 
 data class CollectionModel(
     @SerializedName("cover_photo")
     val coverPhoto: CoverPhoto,
     @SerializedName("description")
-    val description: String,
+    val description: String?,
     @SerializedName("featured")
     val featured: Boolean,
     @SerializedName("id")
@@ -33,4 +34,13 @@ data class CollectionModel(
     val updatedAt: String,
     @SerializedName("user")
     val user: User,
-)
+) {
+    val descriptionTextShow
+        get() =
+            description?.let {
+                HtmlCompat.fromHtml(
+                    "<b>${user.username}</b> $description",
+                    HtmlCompat.FROM_HTML_MODE_LEGACY,
+                )
+            }
+}

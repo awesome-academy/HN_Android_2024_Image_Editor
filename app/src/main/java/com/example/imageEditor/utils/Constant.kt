@@ -9,3 +9,7 @@ const val AUTHORIZATION = "Authorization"
 const val ACCESS_TOKEN = BuildConfig.ACCESS_TOKEN
 const val PAGE = "page"
 const val COLLECTION_ENDPOINT = "collections"
+const val HOME_INDEX = 0
+const val SEARCH_INDEX = 1
+const val CREATE_INDEX = 2
+const val FAVORITE_INDEX = 3

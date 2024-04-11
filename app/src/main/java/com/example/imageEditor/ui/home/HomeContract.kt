@@ -1,9 +1,9 @@
-package com.example.imageEditor.ui
+package com.example.imageEditor.ui.home
 
 import com.example.imageEditor.base.BasePresenter
 import com.example.imageEditor.model.CollectionModel
 
-interface MainContract {
+interface HomeContract {
     interface View {
         fun setupCollections(list: List<CollectionModel>)
     }
