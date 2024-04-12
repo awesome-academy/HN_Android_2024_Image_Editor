@@ -1,5 +1,10 @@
 package com.example.imageEditor.ui.main
 
+import android.Manifest
+import android.content.Intent
+import android.os.Build
+import android.provider.Settings
+import androidx.activity.result.contract.ActivityResultContracts
 import com.example.imageEditor.R
 import com.example.imageEditor.base.BaseActivity
 import com.example.imageEditor.databinding.ActivityMainBinding
@@ -13,7 +18,12 @@ import com.example.imageEditor.utils.HOME_INDEX
 import com.example.imageEditor.utils.SEARCH_INDEX
 
 class MainActivity : BaseActivity<ActivityMainBinding>() {
-    private val mMainViewPagerAdapter by lazy { MainViewPagerAdapter(supportFragmentManager, lifecycle) }
+    private val mMainViewPagerAdapter by lazy {
+        MainViewPagerAdapter(
+            supportFragmentManager,
+            lifecycle,
+        )
+    }
     private val mHomeFragment by lazy { HomeFragment() }
     private val mSearchFragment by lazy { SearchFragment() }
     private val mCreateFragment by lazy { CreateFragment() }
@@ -24,6 +34,22 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
     }
 
     override fun initView() {
+        val launcher =
+            registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
+                if (!permissions.getOrDefault(Manifest.permission.POST_NOTIFICATIONS, false)) {
+                    val intent = Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS)
+                    intent.putExtra(Settings.EXTRA_APP_PACKAGE, packageName)
+                    startActivity(intent)
+                }
+            }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            launcher.launch(
+                arrayOf(
+                    Manifest.permission.READ_MEDIA_IMAGES,
+                    Manifest.permission.POST_NOTIFICATIONS,
+                ),
+            )
+        }
         setupPager()
     }
 

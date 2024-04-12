@@ -13,9 +13,8 @@ import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 
 class ApiImpl(private val onListenProcess: OnListenProcess) : Api {
-    private val executorService: ExecutorService = Executors.newCachedThreadPool()
-
     override fun getCollections(page: Int): List<CollectionModel> {
+        val executorService: ExecutorService = Executors.newCachedThreadPool()
         var result: List<CollectionModel> = emptyList()
         val futureTask: CustomFuture<List<CollectionModel>> =
             CustomFuture(
