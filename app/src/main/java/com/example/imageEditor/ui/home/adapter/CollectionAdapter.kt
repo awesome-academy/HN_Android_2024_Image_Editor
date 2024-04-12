@@ -15,7 +15,7 @@ import com.example.imageEditor.databinding.ItemCollectionBinding
 import com.example.imageEditor.model.CollectionModel
 import com.example.imageEditor.utils.displayImage
 
-class CollectionAdapter : ListAdapter<CollectionModel, CollectionAdapter.ViewHolder>(
+class CollectionAdapter(private val onClickImage: OnClickImage) : ListAdapter<CollectionModel, CollectionAdapter.ViewHolder>(
     object : DiffUtil.ItemCallback<CollectionModel>() {
         override fun areItemsTheSame(
             oldItem: CollectionModel,
@@ -60,6 +60,7 @@ class CollectionAdapter : ListAdapter<CollectionModel, CollectionAdapter.ViewHol
             item: CollectionModel,
             childRecyclerViewState: SparseIntArray,
             index: Int,
+            onClickImage: OnClickImage,
         ) {
             binding.imgUser.displayImage(item.user.profileImage.small)
             binding.tvUserName.text = item.user.username
@@ -72,7 +73,7 @@ class CollectionAdapter : ListAdapter<CollectionModel, CollectionAdapter.ViewHol
             binding.tvDescription.text = item.descriptionTextShow
 
             binding.recycleViewImg.setHasFixedSize(true)
-            val adapter = ImageAdapter(binding.root.context, item.previewPhotos)
+            val adapter = ImageAdapter(binding.root.context, item.previewPhotos, onClickImage)
             binding.recycleViewImg.adapter = adapter
 
             if (childRecyclerViewState.containsKey(index)) {
@@ -110,6 +111,6 @@ class CollectionAdapter : ListAdapter<CollectionModel, CollectionAdapter.ViewHol
         holder: ViewHolder,
         position: Int,
     ) {
-        holder.bindView(getItem(position), mChildRecyclerViewState, position)
+        holder.bindView(getItem(position), mChildRecyclerViewState, position, onClickImage)
     }
 }

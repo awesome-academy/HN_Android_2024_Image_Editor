@@ -13,3 +13,5 @@ const val HOME_INDEX = 0
 const val SEARCH_INDEX = 1
 const val CREATE_INDEX = 2
 const val FAVORITE_INDEX = 3
+const val URL = "URL"
+const val FILE_TITLE = "Instagram Image"

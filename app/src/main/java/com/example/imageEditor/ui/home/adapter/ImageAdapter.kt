@@ -14,12 +14,19 @@ import com.example.imageEditor.utils.displayImage
 class ImageAdapter(
     private val context: Context,
     private val images: List<PreviewPhoto>,
+    private val onClickImage: OnClickImage,
 ) : RecyclerView.Adapter<ImageAdapter.ViewHolder>() {
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         private val img: ImageView = view.findViewById(R.id.img)
 
-        fun bind(url: Urls) {
+        fun bind(
+            url: Urls,
+            onClickImage: OnClickImage,
+        ) {
             img.displayImage(url.regular)
+            img.setOnClickListener {
+                onClickImage.clickImage(url.full)
+            }
         }
     }
 
@@ -39,6 +46,6 @@ class ImageAdapter(
         holder: ViewHolder,
         position: Int,
     ) {
-        holder.bind(images[position].urls)
+        holder.bind(images[position].urls, onClickImage)
     }
 }
