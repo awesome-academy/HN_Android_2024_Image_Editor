@@ -8,4 +8,9 @@
     <string name="like">Like</string>
     <string name="avatar">Avatar</string>
     <string name="liked_by_others">Liked by %1$s others</string>
+    <string name="shop">Shop</string>
+    <string name="style">Style</string>
+    <string name="igtv">IGTV</string>
+    <string name="auto">Auto</string>
+    <string name="sports">Sports</string>
 </resources>

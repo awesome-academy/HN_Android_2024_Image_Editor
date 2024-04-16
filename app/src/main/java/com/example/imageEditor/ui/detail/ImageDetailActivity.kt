@@ -8,7 +8,6 @@ import com.example.imageEditor.databinding.ActivityDetailImageBinding
 import com.example.imageEditor.repository.DetailRepository
 import com.example.imageEditor.utils.URL
 import com.example.imageEditor.utils.displayImage
-import com.example.imageEditor.utils.downloadImage
 
 class ImageDetailActivity : BaseActivity<ActivityDetailImageBinding>() {
     private val imageDetailPresenter by lazy { ImageDetailPresenter(DetailRepository.getInstance()) }

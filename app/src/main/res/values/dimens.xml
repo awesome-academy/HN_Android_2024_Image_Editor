@@ -15,4 +15,10 @@
     <dimen name="dimen1dp">1dp</dimen>
     <dimen name="dimen_8">8dp</dimen>
     <dimen name="dimen_4">4dp</dimen>
+    <dimen name="dimen_9">9dp</dimen>
+    <dimen name="dimen_14sp">14sp</dimen>
+    <dimen name="dimen_7">7dp</dimen>
+    <dimen name="dimen_6">6dp</dimen>
+    <dimen name="dimen_2">2dp</dimen>
+    <dimen name="dimen_124">124dp</dimen>
 </resources>

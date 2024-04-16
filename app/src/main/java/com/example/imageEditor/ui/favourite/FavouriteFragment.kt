@@ -14,4 +14,7 @@ class FavouriteFragment : BaseFragment<FragmentFavouriteBinding>() {
 
     override fun initData() {
     }
+
+    override fun initListener() {
+    }
 }

@@ -14,4 +14,7 @@ class CreateFragment : BaseFragment<FragmentCreateBinding>() {
 
     override fun initData() {
     }
+
+    override fun initListener() {
+    }
 }
