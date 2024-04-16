@@ -35,6 +35,7 @@ abstract class BaseFragment<VB : ViewBinding> : Fragment(), OnListenProcess {
     ) {
         super.onViewCreated(view, savedInstanceState)
         initData()
+        initListener()
     }
 
     abstract fun getViewBinding(inflater: LayoutInflater): VB
@@ -42,6 +43,8 @@ abstract class BaseFragment<VB : ViewBinding> : Fragment(), OnListenProcess {
     abstract fun initView()
 
     abstract fun initData()
+
+    abstract fun initListener()
 
     override fun onDestroyView() {
         super.onDestroyView()

@@ -25,6 +25,13 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(), HomeContract.View, OnC
     override fun initView() {
         mHomePresenter.setView(this)
         binding?.recycleView?.adapter = mAdapter
+    }
+
+    override fun initData() {
+        mHomePresenter.getCollections(mPageQuery)
+    }
+
+    override fun initListener() {
         binding?.recycleView?.addOnScrollListener(
             object : RecyclerView.OnScrollListener() {
                 override fun onScrolled(
@@ -42,10 +49,6 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(), HomeContract.View, OnC
                 }
             },
         )
-    }
-
-    override fun initData() {
-        mHomePresenter.getCollections(mPageQuery)
     }
 
     override fun setupCollections(list: List<CollectionModel>) {
