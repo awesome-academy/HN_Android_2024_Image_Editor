@@ -4,7 +4,10 @@ import com.example.imageEditor.model.CollectionModel
 import com.example.imageEditor.model.PhotoSearchModel
 
 interface Api {
-    fun getCollections(page: Int): List<CollectionModel>
+    fun getCollections(
+        page: Int,
+        onResult: (List<CollectionModel>?) -> Unit,
+    )
 
     fun searchPhotos(
         page: Int,

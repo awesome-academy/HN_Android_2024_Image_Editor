@@ -1,8 +1,12 @@
 package com.example.imageEditor.ui.search
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.content.Intent
 import android.view.LayoutInflater
+import android.view.View
+import android.view.inputmethod.InputMethodManager
+import androidx.appcompat.widget.SearchView.OnQueryTextListener
 import androidx.core.content.ContextCompat
 import androidx.core.view.forEachIndexed
 import androidx.recyclerview.widget.RecyclerView
@@ -11,15 +15,21 @@ import com.example.imageEditor.R
 import com.example.imageEditor.base.BaseFragment
 import com.example.imageEditor.databinding.FragmentSearchBinding
 import com.example.imageEditor.model.PhotoSearchModel
+import com.example.imageEditor.model.QueryModel
 import com.example.imageEditor.repository.SearchRepository
 import com.example.imageEditor.ui.detail.ImageDetailActivity
+import com.example.imageEditor.ui.search.adapter.DeleteItemCallback
 import com.example.imageEditor.ui.search.adapter.SearchImageAdapter
+import com.example.imageEditor.ui.search.adapter.SearchTextAdapter
 import com.example.imageEditor.utils.DEFAULT_VALUE_ADDED
 import com.example.imageEditor.utils.SPAN_COUNT
 import com.example.imageEditor.utils.URL
 import com.example.imageEditor.utils.setSpanForString
 
-class SearchFragment : BaseFragment<FragmentSearchBinding>(), SearchContract.View {
+class SearchFragment :
+    BaseFragment<FragmentSearchBinding>(),
+    SearchContract.View,
+    DeleteItemCallback {
     private val mPresenter by lazy { SearchPresenter(SearchRepository.getInstance(this)) }
     private val mAdapter by lazy {
         SearchImageAdapter(onClickImage = {
@@ -27,6 +37,10 @@ class SearchFragment : BaseFragment<FragmentSearchBinding>(), SearchContract.Vie
             intent.putExtra(URL, it)
             startActivity(intent)
         })
+    }
+    private var mQueryList = mutableListOf<QueryModel>()
+    private val mSearchTextAdapter by lazy {
+        SearchTextAdapter(this, mQueryList)
     }
     private var mPageQuery = 0
 
@@ -37,31 +51,6 @@ class SearchFragment : BaseFragment<FragmentSearchBinding>(), SearchContract.Vie
     @SuppressLint("UseCompatLoadingForDrawables")
     override fun initView() {
         mPresenter.setView(this)
-        binding?.radioGroup?.setOnCheckedChangeListener { group, checkedId ->
-            setBackgroundRadioButton(checkedId)
-            mAdapter.submitList(null)
-            when (checkedId) {
-                R.id.rbIgtv -> {
-                    mPresenter.searchPhotos(query = getString(R.string.igtv))
-                }
-
-                R.id.rbShop -> {
-                    mPresenter.searchPhotos(query = getString(R.string.shop))
-                }
-
-                R.id.rbStyle -> {
-                    mPresenter.searchPhotos(query = getString(R.string.style))
-                }
-
-                R.id.rbSports -> {
-                    mPresenter.searchPhotos(query = getString(R.string.sports))
-                }
-
-                R.id.rbAuto -> {
-                    mPresenter.searchPhotos(query = getString(R.string.auto))
-                }
-            }
-        }
         binding?.rbShop?.text =
             setSpanForString(
                 getString(R.string.shop),
@@ -75,10 +64,13 @@ class SearchFragment : BaseFragment<FragmentSearchBinding>(), SearchContract.Vie
             this.layoutManager = layoutManager
             adapter = mAdapter
         }
+
+        binding?.recycleViewSearch?.adapter = mSearchTextAdapter
     }
 
     override fun initData() {
         mPresenter.searchPhotos()
+        mPresenter.getAllQueryFromLocal()
     }
 
     override fun initListener() {
@@ -102,6 +94,66 @@ class SearchFragment : BaseFragment<FragmentSearchBinding>(), SearchContract.Vie
                 }
             },
         )
+        binding?.radioGroup?.setOnCheckedChangeListener { group, checkedId ->
+            setBackgroundRadioButton(checkedId)
+            mAdapter.submitList(null)
+            when (checkedId) {
+                R.id.rbIgtv -> {
+                    mPresenter.getAllQueryFromLocal()
+                    mPresenter.searchPhotos(query = getString(R.string.igtv))
+                }
+
+                R.id.rbShop -> {
+                    mPresenter.searchPhotos(query = getString(R.string.shop))
+                }
+
+                R.id.rbStyle -> {
+                    mPresenter.searchPhotos(query = getString(R.string.style))
+                }
+
+                R.id.rbSports -> {
+                    mPresenter.searchPhotos(query = getString(R.string.sports))
+                }
+
+                R.id.rbAuto -> {
+                    mPresenter.searchPhotos(query = getString(R.string.auto))
+                }
+            }
+        }
+
+        binding?.searchView?.setOnQueryTextListener(
+            object : OnQueryTextListener {
+                override fun onQueryTextSubmit(query: String?): Boolean {
+                    if (!query.isNullOrBlank()) {
+                        mAdapter.submitList(null)
+                        mPresenter.searchPhotos(query = query)
+                        mPresenter.saveQueryToLocal(query)
+                        binding?.searchView?.isIconified = true
+                        val inputMethodManager =
+                            requireContext().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+                        inputMethodManager.hideSoftInputFromWindow(
+                            binding?.searchView?.windowToken,
+                            0,
+                        )
+                        binding?.searchView?.clearFocus()
+                    }
+                    return true
+                }
+
+                override fun onQueryTextChange(newText: String?): Boolean {
+                    return true
+                }
+            },
+        )
+
+        binding?.searchView?.setOnQueryTextFocusChangeListener { v, hasFocus ->
+            if (!hasFocus) {
+                binding?.recycleViewSearch?.visibility = View.GONE
+            } else {
+                mSearchTextAdapter.updateDataList(mPresenter.listQuery)
+                binding?.recycleViewSearch?.visibility = View.VISIBLE
+            }
+        }
     }
 
     private fun setBackgroundRadioButton(id: Int) {
@@ -124,5 +176,14 @@ class SearchFragment : BaseFragment<FragmentSearchBinding>(), SearchContract.Vie
             newList.addAll(it)
             mAdapter.submitList(newList)
         }
+    }
+
+    override fun deleteItemQuery(
+        id: Long,
+        position: Int,
+    ) {
+        mQueryList.removeAt(position)
+        mSearchTextAdapter.notifyDataSetChanged()
+        mPresenter.deleteQuery(id)
     }
 }
