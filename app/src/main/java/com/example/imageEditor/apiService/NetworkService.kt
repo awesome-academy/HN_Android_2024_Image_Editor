@@ -4,8 +4,13 @@ import com.example.imageEditor.model.CollectionModel
 import com.example.imageEditor.model.PhotoSearchModel
 
 class NetworkService(private val api: Api) {
-    fun getCollections(page: Int): List<CollectionModel> {
-        return api.getCollections(page)
+    fun getCollections(
+        page: Int,
+        onResult: (List<CollectionModel>?) -> Unit,
+    ) {
+        api.getCollections(page) {
+            onResult.invoke(it)
+        }
     }
 
     fun searchPhotos(

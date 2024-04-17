@@ -8,8 +8,13 @@ import com.example.imageEditor.model.CollectionModel
 class HomeRepository(onListenProcess: OnListenProcess) {
     private val networkService = NetworkService.getInstance(ApiImpl.getInstance(onListenProcess))
 
-    fun getCollections(page: Int): List<CollectionModel> {
-        return networkService.getCollections(page)
+    fun getCollections(
+        page: Int,
+        onResult: (List<CollectionModel>?) -> Unit,
+    ) {
+        networkService.getCollections(page) {
+            onResult.invoke(it)
+        }
     }
 
     companion object {

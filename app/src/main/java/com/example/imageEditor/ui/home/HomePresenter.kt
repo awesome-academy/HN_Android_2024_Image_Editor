@@ -6,7 +6,9 @@ class HomePresenter(private val homeRepository: HomeRepository) : HomeContract.P
     private var view: HomeContract.View? = null
 
     override fun getCollections(page: Int) {
-        view?.setupCollections(homeRepository.getCollections(page))
+        homeRepository.getCollections(page) { data ->
+            data?.let { view?.setupCollections(it) }
+        }
     }
 
     override fun onStart() {

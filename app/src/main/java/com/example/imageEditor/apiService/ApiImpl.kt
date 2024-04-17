@@ -1,6 +1,5 @@
 package com.example.imageEditor.apiService
 
-import android.util.Log
 import com.example.imageEditor.base.CustomFuture
 import com.example.imageEditor.base.OnListenProcess
 import com.example.imageEditor.model.CollectionModel
@@ -18,9 +17,11 @@ import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 
 class ApiImpl(private val onListenProcess: OnListenProcess) : Api {
-    override fun getCollections(page: Int): List<CollectionModel> {
+    override fun getCollections(
+        page: Int,
+        onResult: (List<CollectionModel>?) -> Unit,
+    ) {
         val executorService: ExecutorService = Executors.newCachedThreadPool()
-        var result: List<CollectionModel> = emptyList()
         val futureTask: CustomFuture<List<CollectionModel>> =
             CustomFuture(
                 Callable {
@@ -37,13 +38,12 @@ class ApiImpl(private val onListenProcess: OnListenProcess) : Api {
             )
         executorService.submit(futureTask)
         try {
-            result = futureTask.get()
+            onResult.invoke(futureTask.get())
         } catch (e: Exception) {
             onListenProcess.onError(Throwable(e))
         } finally {
             executorService.shutdown()
         }
-        return result
     }
 
     override fun searchPhotos(
@@ -52,7 +52,6 @@ class ApiImpl(private val onListenProcess: OnListenProcess) : Api {
         perPage: Int?,
         onResult: (PhotoSearchModel?) -> Unit,
     ) {
-        Log.e(">>>>>>>>>", "searchPhotos: ")
         val executorService: ExecutorService = Executors.newCachedThreadPool()
         val futureTask: CustomFuture<PhotoSearchModel> =
             CustomFuture(

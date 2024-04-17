@@ -13,5 +13,11 @@ interface SearchContract {
             page: Int = 0,
             query: String? = null,
         )
+
+        fun saveQueryToLocal(query: String)
+
+        fun deleteQuery(id: Long)
+
+        fun getAllQueryFromLocal()
     }
 }
