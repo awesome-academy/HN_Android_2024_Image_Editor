@@ -23,4 +23,5 @@
     <dimen name="dimen_124">124dp</dimen>
     <dimen name="dimen_250">250dp</dimen>
     <dimen name="dimen_375">375dp</dimen>
+    <dimen name="dimen_48">48dp</dimen>
 </resources>

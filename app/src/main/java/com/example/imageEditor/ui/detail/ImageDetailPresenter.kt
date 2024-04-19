@@ -1,13 +1,23 @@
 package com.example.imageEditor.ui.detail
 
+import android.graphics.Bitmap
 import com.example.imageEditor.repository.DetailRepository
 
-class ImageDetailPresenter(private val detailRepository: DetailRepository) :
+class ImageDetailPresenter(private val mDetailRepository: DetailRepository) :
     DetailContract.Presenter {
-    private var view: DetailContract.View? = null
+    private var mView: DetailContract.View? = null
 
     override fun downloadImage(url: String) {
-        detailRepository.downloadImage(url)
+        mDetailRepository.downloadImage(url)
+    }
+
+    override fun saveImage(bitmap: Bitmap) {
+        mDetailRepository.saveImage(
+            bitmap,
+            onSuccess = { mView?.onSaveSuccess() },
+            onError = { mView?.onSaveError(it) },
+            onDownloading = { mView?.onDownloading() },
+        )
     }
 
     override fun onStart() {
@@ -19,6 +29,6 @@ class ImageDetailPresenter(private val detailRepository: DetailRepository) :
     }
 
     override fun setView(view: DetailContract.View?) {
-        this.view = view
+        this.mView = view
     }
 }

@@ -14,4 +14,6 @@
     <string name="igtv">IGTV</string>
     <string name="auto">Auto</string>
     <string name="sports">Sports</string>
+    <string name="save_success">Đã lưu</string>
+    <string name="downloading">Đang tải…</string>
 </resources>

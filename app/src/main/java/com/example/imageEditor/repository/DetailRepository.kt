@@ -1,5 +1,6 @@
 package com.example.imageEditor.repository
 
+import android.graphics.Bitmap
 import com.example.imageEditor.apiService.DownloadService
 
 class DetailRepository {
@@ -7,6 +8,20 @@ class DetailRepository {
 
     fun downloadImage(url: String) {
         downloadService.downloadImage(url)
+    }
+
+    fun saveImage(
+        bitmap: Bitmap,
+        onSuccess: () -> Unit,
+        onDownloading: () -> Unit,
+        onError: (Throwable) -> Unit,
+    ) {
+        downloadService.saveImage(
+            bitmap,
+            onSuccess = { onSuccess() },
+            onError = { onError(it) },
+            onDownloading = { onDownloading() },
+        )
     }
 
     companion object {
