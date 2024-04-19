@@ -2,13 +2,19 @@ package com.example.imageEditor.apiService
 
 import android.app.DownloadManager
 import android.content.Context
+import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Environment
 import com.example.imageEditor.App
 import com.example.imageEditor.utils.FILE_TITLE
+import java.io.File
+import java.io.FileOutputStream
+import java.io.IOException
 import java.util.UUID
+import java.util.concurrent.Callable
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
+import java.util.concurrent.FutureTask
 
 class DownloadService() {
     fun downloadImage(url: String) {
@@ -22,6 +28,43 @@ class DownloadService() {
             val downloadManager =
                 App.instance.getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
             downloadManager.enqueue(request)
+        }
+    }
+
+    fun saveImage(
+        bitmap: Bitmap,
+        onDownloading: () -> Unit,
+        onSuccess: () -> Unit,
+        onError: (Throwable) -> Unit,
+    ) {
+        onDownloading.invoke()
+        val executorService: ExecutorService = Executors.newCachedThreadPool()
+        val futureTask: FutureTask<Unit> =
+            FutureTask(
+                Callable {
+                    val fileName = "image/${UUID.randomUUID()}.jpg"
+                    val directory =
+                        Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+                    try {
+                        val file = File(directory, fileName)
+                        val outputStream = FileOutputStream(file)
+                        // Nén và ghi bitmap vào tệp
+                        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream)
+
+                        outputStream.flush()
+                        outputStream.close()
+                        return@Callable
+                    } catch (e: IOException) {
+                        throw Throwable(e)
+                    }
+                },
+            )
+        executorService.submit(futureTask)
+        try {
+            futureTask.get()
+            onSuccess()
+        } catch (e: Exception) {
+            onError.invoke(Throwable(e))
         }
     }
 
