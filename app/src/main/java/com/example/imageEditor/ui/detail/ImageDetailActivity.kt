@@ -6,6 +6,8 @@ import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.Path
+import android.graphics.PointF
+import android.graphics.RectF
 import android.view.GestureDetector
 import android.view.MotionEvent
 import android.view.View
@@ -18,8 +20,12 @@ import com.example.imageEditor.databinding.ActivityDetailImageBinding
 import com.example.imageEditor.repository.DetailRepository
 import com.example.imageEditor.utils.URL
 import com.example.imageEditor.utils.displayImage
+import com.example.imageEditor.utils.displayImageWithBitmap
 
-class ImageDetailActivity : BaseActivity<ActivityDetailImageBinding>(), DetailContract.View {
+class ImageDetailActivity :
+    BaseActivity<ActivityDetailImageBinding>(),
+    DetailContract.View,
+    CropSuccessCallback {
     private val mImageDetailPresenter by lazy { ImageDetailPresenter(DetailRepository.getInstance()) }
     private val mUrl by lazy { intent.getStringExtra(URL) }
     private val mImageListener by lazy { ImageListener(binding.img) }
@@ -30,6 +36,20 @@ class ImageDetailActivity : BaseActivity<ActivityDetailImageBinding>(), DetailCo
             field = value
             binding.rgColor.visibility = if (value) View.VISIBLE else View.GONE
         }
+    private var isCropping = false
+        set(value) {
+            field = value
+            if (value) {
+                binding.cropView.visibility = View.VISIBLE
+                binding.constrainOption.visibility = View.INVISIBLE
+                binding.constrainConfirm.visibility = View.VISIBLE
+                binding.cropView.setCropSuccessCallback(this)
+            } else {
+                binding.cropView.visibility = View.GONE
+                binding.cropView.removeCropCallback()
+            }
+        }
+
     private var mChangeImg = false
     private val mPath = Path()
 
@@ -45,10 +65,13 @@ class ImageDetailActivity : BaseActivity<ActivityDetailImageBinding>(), DetailCo
             color = Color.BLACK
             strokeWidth = 5f
             style = Paint.Style.STROKE
+            isAntiAlias = true
         }
 
     private var mLastTouchX = 0f
     private var mLastTouchY: Float = 0f
+
+    private var croppedBitmap: Bitmap? = null
 
     override fun getViewBinding(): ActivityDetailImageBinding {
         return ActivityDetailImageBinding.inflate(layoutInflater)
@@ -56,6 +79,11 @@ class ImageDetailActivity : BaseActivity<ActivityDetailImageBinding>(), DetailCo
 
     override fun initView() {
         mImageDetailPresenter.setView(this)
+        mScaleGestureDetector =
+            GestureDetector(
+                this,
+                mImageListener,
+            )
         mUrl?.let {
             binding.img.displayImage(
                 it,
@@ -67,11 +95,9 @@ class ImageDetailActivity : BaseActivity<ActivityDetailImageBinding>(), DetailCo
 
     @SuppressLint("ClickableViewAccessibility")
     override fun initListener() {
-        mScaleGestureDetector =
-            GestureDetector(
-                this,
-                mImageListener,
-            )
+        binding.imgCrop.setOnClickListener {
+            isCropping = true
+        }
         mScaleGestureDetector?.setOnDoubleTapListener(mImageListener)
         binding.imgDownLoad.setOnClickListener {
             if (mChangeImg) {
@@ -82,6 +108,31 @@ class ImageDetailActivity : BaseActivity<ActivityDetailImageBinding>(), DetailCo
                 }
             }
         }
+
+        drawListener()
+
+        binding.imgDone.setOnClickListener {
+            if (isCropping) {
+                croppedBitmap?.let { it1 ->
+                    binding.img.displayImageWithBitmap(it1) { bitmap ->
+                        mMutableBitmap = bitmap.copy(Bitmap.Config.ARGB_8888, true)
+                    }
+                }
+                isCropping = false
+            }
+            isDrawing = false
+            binding.constrainConfirm.visibility = View.INVISIBLE
+            binding.constrainOption.visibility = View.VISIBLE
+        }
+        binding.imgCancel.setOnClickListener {
+            isDrawing = false
+            isCropping = false
+            setupDefaultView()
+        }
+    }
+
+    @SuppressLint("ClickableViewAccessibility")
+    private fun drawListener() {
         binding.img.setOnTouchListener { view, event ->
             if (!isDrawing) {
                 mScaleGestureDetector?.onTouchEvent(event)
@@ -120,10 +171,9 @@ class ImageDetailActivity : BaseActivity<ActivityDetailImageBinding>(), DetailCo
             true
         }
         binding.imgDraw.setOnClickListener {
+            isDrawing = true
             binding.constrainConfirm.visibility = View.VISIBLE
-            binding.rgColor.visibility = View.VISIBLE
             binding.constrainOption.visibility = View.INVISIBLE
-            isDrawing = !isDrawing
         }
         binding.rgColor.setOnCheckedChangeListener { group, checkedId ->
             when (checkedId) {
@@ -136,20 +186,15 @@ class ImageDetailActivity : BaseActivity<ActivityDetailImageBinding>(), DetailCo
                 R.id.rbWhite -> mPaint.color = Color.WHITE
             }
         }
-        binding.imgDone.setOnClickListener {
-            isDrawing = !isDrawing
-            binding.constrainOption.visibility = View.VISIBLE
-            binding.constrainConfirm.visibility = View.INVISIBLE
-        }
-        binding.imgCancel.setOnClickListener {
-            isDrawing = !isDrawing
-            binding.constrainConfirm.visibility = View.INVISIBLE
-            binding.constrainOption.visibility = View.VISIBLE
-            mUrl?.let {
-                mChangeImg = false
-                binding.img.displayImage(it) { bitmap ->
-                    mMutableBitmap = bitmap.copy(Bitmap.Config.ARGB_8888, true)
-                }
+    }
+
+    private fun setupDefaultView() {
+        mChangeImg = false
+        binding.constrainOption.visibility = View.VISIBLE
+        binding.constrainConfirm.visibility = View.INVISIBLE
+        mUrl?.let {
+            binding.img.displayImage(it) { bitmap ->
+                mMutableBitmap = bitmap.copy(Bitmap.Config.ARGB_8888, true)
             }
         }
     }
@@ -169,5 +214,29 @@ class ImageDetailActivity : BaseActivity<ActivityDetailImageBinding>(), DetailCo
 
     override fun onDownloading() {
         Toast.makeText(this, getString(R.string.downloading), Toast.LENGTH_SHORT).show()
+    }
+
+    override fun onCropSuccess(
+        startPointF: PointF,
+        endPointF: PointF,
+    ) {
+        mMutableBitmap?.let {
+            // Tính toán hình chữ nhật cắt (crop rectangle) từ startPointF và endPointF
+            val left = minOf(startPointF.x, endPointF.x)
+            val top = minOf(startPointF.y, endPointF.y)
+            val right = maxOf(startPointF.x, endPointF.x)
+            val bottom = maxOf(startPointF.y, endPointF.y)
+            val cropRect = RectF(left, top, right, bottom)
+
+            // Tạo một bitmap mới từ phần đã cắt (crop) của bitmap gốc
+            croppedBitmap =
+                Bitmap.createBitmap(
+                    it,
+                    cropRect.left.toInt(),
+                    cropRect.top.toInt(),
+                    cropRect.width().toInt(),
+                    cropRect.height().toInt(),
+                )
+        }
     }
 }

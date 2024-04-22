@@ -40,3 +40,34 @@ fun ImageView.displayImage(
             },
         ).into(this)
 }
+
+fun ImageView.displayImageWithBitmap(
+    bitmap: Bitmap,
+    onSuccess: (Bitmap) -> Unit = {},
+) {
+    Glide.with(this.context).load(bitmap).error(android.R.drawable.stat_notify_error)
+        .placeholder(android.R.drawable.stat_sys_download_done)
+        .listener(
+            object : RequestListener<Drawable> {
+                override fun onLoadFailed(
+                    e: GlideException?,
+                    model: Any?,
+                    target: Target<Drawable>,
+                    isFirstResource: Boolean,
+                ): Boolean {
+                    return false
+                }
+
+                override fun onResourceReady(
+                    resource: Drawable,
+                    model: Any,
+                    target: Target<Drawable>?,
+                    dataSource: DataSource,
+                    isFirstResource: Boolean,
+                ): Boolean {
+                    if (width > 0 && height > 0) onSuccess(resource.toBitmap(width, height))
+                    return false
+                }
+            },
+        ).into(this)
+}
