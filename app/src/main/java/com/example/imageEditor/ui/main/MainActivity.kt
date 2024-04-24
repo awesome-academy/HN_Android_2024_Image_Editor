@@ -8,7 +8,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import com.example.imageEditor.R
 import com.example.imageEditor.base.BaseActivity
 import com.example.imageEditor.databinding.ActivityMainBinding
-import com.example.imageEditor.ui.create.CreateFragment
+import com.example.imageEditor.ui.create.CreateImageFragment
 import com.example.imageEditor.ui.favourite.FavouriteFragment
 import com.example.imageEditor.ui.home.HomeFragment
 import com.example.imageEditor.ui.search.SearchFragment
@@ -26,7 +26,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
     }
     private val mHomeFragment by lazy { HomeFragment() }
     private val mSearchFragment by lazy { SearchFragment() }
-    private val mCreateFragment by lazy { CreateFragment() }
+    private val mCreateImageFragment by lazy { CreateImageFragment() }
     private val mFavouriteFragment by lazy { FavouriteFragment() }
 
     override fun getViewBinding(): ActivityMainBinding {
@@ -36,10 +36,12 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
     override fun initView() {
         val launcher =
             registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
-                if (!permissions.getOrDefault(Manifest.permission.POST_NOTIFICATIONS, false)) {
-                    val intent = Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS)
-                    intent.putExtra(Settings.EXTRA_APP_PACKAGE, packageName)
-                    startActivity(intent)
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    if (!permissions.getOrDefault(Manifest.permission.POST_NOTIFICATIONS, false)) {
+                        val intent = Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS)
+                        intent.putExtra(Settings.EXTRA_APP_PACKAGE, packageName)
+                        startActivity(intent)
+                    }
                 }
             }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
@@ -47,6 +49,14 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
                 arrayOf(
                     Manifest.permission.READ_MEDIA_IMAGES,
                     Manifest.permission.POST_NOTIFICATIONS,
+                    Manifest.permission.CAMERA,
+                ),
+            )
+        } else {
+            launcher.launch(
+                arrayOf(
+                    Manifest.permission.CAMERA,
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE,
                 ),
             )
         }
@@ -86,7 +96,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
     private fun setupPager() {
         mMainViewPagerAdapter.addFragment(mHomeFragment)
         mMainViewPagerAdapter.addFragment(mSearchFragment)
-        mMainViewPagerAdapter.addFragment(mCreateFragment)
+        mMainViewPagerAdapter.addFragment(mCreateImageFragment)
         mMainViewPagerAdapter.addFragment(mFavouriteFragment)
         binding.pager2.offscreenPageLimit = mMainViewPagerAdapter.itemCount
         binding.pager2.adapter = mMainViewPagerAdapter
