@@ -1,4 +1,4 @@
-package com.example.imageEditor
+package com.example.imageEditor.custom
 
 import android.view.GestureDetector
 import android.view.MotionEvent

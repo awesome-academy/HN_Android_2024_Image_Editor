@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Color
+import android.graphics.ColorFilter
 import android.graphics.Paint
 import android.graphics.Path
 import android.graphics.PointF
@@ -12,10 +13,13 @@ import android.view.GestureDetector
 import android.view.MotionEvent
 import android.view.View
 import android.widget.Toast
-import androidx.core.graphics.drawable.toBitmap
-import com.example.imageEditor.ImageListener
+import androidx.core.view.drawToBitmap
 import com.example.imageEditor.R
 import com.example.imageEditor.base.BaseActivity
+import com.example.imageEditor.custom.CropSuccessCallback
+import com.example.imageEditor.custom.FilterAdapter
+import com.example.imageEditor.custom.ImageListener
+import com.example.imageEditor.custom.OnFilterPicked
 import com.example.imageEditor.databinding.ActivityDetailImageBinding
 import com.example.imageEditor.repository.DetailRepository
 import com.example.imageEditor.utils.URL
@@ -25,16 +29,21 @@ import com.example.imageEditor.utils.displayImageWithBitmap
 class ImageDetailActivity :
     BaseActivity<ActivityDetailImageBinding>(),
     DetailContract.View,
-    CropSuccessCallback {
+    CropSuccessCallback,
+    OnFilterPicked {
     private val mImageDetailPresenter by lazy { ImageDetailPresenter(DetailRepository.getInstance()) }
     private val mUrl by lazy { intent.getStringExtra(URL) }
     private val mImageListener by lazy { ImageListener(binding.img) }
     private var mScaleGestureDetector: GestureDetector? = null
+    private lateinit var filterAdapter: FilterAdapter
 
     private var isDrawing = false
         set(value) {
             field = value
             binding.rgColor.visibility = if (value) View.VISIBLE else View.GONE
+            if (isFiltering) {
+                binding.recycleViewFilterOption.visibility = if (value) View.GONE else View.VISIBLE
+            }
         }
     private var isCropping = false
         set(value) {
@@ -72,6 +81,11 @@ class ImageDetailActivity :
     private var mLastTouchY: Float = 0f
 
     private var croppedBitmap: Bitmap? = null
+    private var isFiltering = false
+        set(value) {
+            field = value
+            binding.recycleViewFilterOption.visibility = if (value) View.VISIBLE else View.GONE
+        }
 
     override fun getViewBinding(): ActivityDetailImageBinding {
         return ActivityDetailImageBinding.inflate(layoutInflater)
@@ -90,6 +104,8 @@ class ImageDetailActivity :
             ) { bitmap ->
                 mMutableBitmap = bitmap.copy(Bitmap.Config.ARGB_8888, true)
             }
+            filterAdapter = FilterAdapter(it, this, this)
+            binding.recycleViewFilterOption.adapter = filterAdapter
         }
     }
 
@@ -101,7 +117,7 @@ class ImageDetailActivity :
         mScaleGestureDetector?.setOnDoubleTapListener(mImageListener)
         binding.imgDownLoad.setOnClickListener {
             if (mChangeImg) {
-                mImageDetailPresenter.saveImage(bitmap = binding.img.drawable.toBitmap())
+                mImageDetailPresenter.saveImage(bitmap = binding.img.drawToBitmap())
             } else {
                 mUrl?.let {
                     mImageDetailPresenter.downloadImage(it)
@@ -128,6 +144,9 @@ class ImageDetailActivity :
             isDrawing = false
             isCropping = false
             setupDefaultView()
+        }
+        binding.imgFilter.setOnClickListener {
+            isFiltering = !isFiltering
         }
     }
 
@@ -238,5 +257,10 @@ class ImageDetailActivity :
                     cropRect.height().toInt(),
                 )
         }
+    }
+
+    override fun filterPicked(colorFilter: ColorFilter) {
+        mChangeImg = true
+        binding.img.colorFilter = colorFilter
     }
 }

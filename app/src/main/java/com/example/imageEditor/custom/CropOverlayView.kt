@@ -1,4 +1,4 @@
-package com.example.imageEditor.ui.detail
+package com.example.imageEditor.custom
 
 import android.annotation.SuppressLint
 import android.content.Context
