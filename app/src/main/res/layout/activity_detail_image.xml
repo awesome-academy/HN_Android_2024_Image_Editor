@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -13,10 +14,22 @@
         app:layout_constraintTop_toTopOf="parent">
 
         <ImageView
+            android:id="@+id/imgFilter"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="@dimen/dimen_8"
+            android:padding="@dimen/dimen_4"
+            android:src="@drawable/ic_filter"
+            app:layout_constraintBottom_toBottomOf="@id/imgCrop"
+            app:layout_constraintEnd_toStartOf="@id/imgCrop"
+            app:layout_constraintTop_toTopOf="@id/imgCrop" />
+
+        <ImageView
             android:id="@+id/imgCrop"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="@dimen/dimen_8"
+            android:padding="@dimen/dimen_4"
             android:src="@drawable/icon_crop"
             app:layout_constraintBottom_toBottomOf="@id/imgDraw"
             app:layout_constraintEnd_toStartOf="@id/imgDraw"
@@ -78,18 +91,18 @@
             app:layout_constraintTop_toTopOf="@id/imgDone" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <ImageView
+    <androidx.constraintlayout.utils.widget.ImageFilterView
         android:id="@+id/img"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:scaleType="fitXY" />
 
-    <com.example.imageEditor.ui.detail.CropOverlayView
+    <com.example.imageEditor.custom.CropOverlayView
         android:id="@+id/cropView"
-        android:visibility="gone"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@android:color/transparent"
+        android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -156,5 +169,17 @@
             android:layout_marginBottom="@dimen/dimen_4"
             app:buttonTint="@color/white" />
     </RadioGroup>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recycleViewFilterOption"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        android:layout_marginBottom="@dimen/dimen_32"
+        android:orientation="horizontal"
+        android:paddingEnd="@dimen/dimen_8"
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+        app:layout_constraintBottom_toBottomOf="parent"
+        tools:ignore="RtlSymmetry" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

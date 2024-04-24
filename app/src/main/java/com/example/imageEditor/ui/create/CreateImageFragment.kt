@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Color
+import android.graphics.ColorFilter
 import android.graphics.Matrix
 import android.graphics.Paint
 import android.graphics.Path
@@ -25,18 +26,21 @@ import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.content.ContextCompat
 import androidx.core.view.drawToBitmap
-import com.example.imageEditor.ImageListener
 import com.example.imageEditor.R
 import com.example.imageEditor.base.BaseFragment
+import com.example.imageEditor.custom.BitmapFilterAdapter
+import com.example.imageEditor.custom.CropSuccessCallback
+import com.example.imageEditor.custom.ImageListener
+import com.example.imageEditor.custom.OnFilterPicked
 import com.example.imageEditor.databinding.FragmentCreateBinding
 import com.example.imageEditor.repository.CreateImageRepository
-import com.example.imageEditor.ui.detail.CropSuccessCallback
 import com.example.imageEditor.utils.imageProxyToBitmap
 
 class CreateImageFragment :
     BaseFragment<FragmentCreateBinding>(),
     CreateImageContract.View,
-    CropSuccessCallback {
+    CropSuccessCallback,
+    OnFilterPicked {
     private var mImageCapture: ImageCapture? = null
     private val mPresenter by lazy { CreateImagePresenter(CreateImageRepository.getInstance()) }
 
@@ -47,6 +51,10 @@ class CreateImageFragment :
         set(value) {
             field = value
             binding?.rgColor?.visibility = if (value) View.VISIBLE else View.GONE
+            if (isFiltering) {
+                binding?.recycleViewFilterOption?.visibility =
+                    if (value) View.GONE else View.VISIBLE
+            }
         }
     private var isCropping = false
         set(value) {
@@ -94,6 +102,12 @@ class CreateImageFragment :
         }
 
     private var isFrontCamera = false
+    private var isFiltering = false
+        set(value) {
+            field = value
+            binding?.recycleViewFilterOption?.visibility = if (value) View.VISIBLE else View.GONE
+        }
+    private lateinit var filterAdapter: BitmapFilterAdapter
 
     override fun getViewBinding(inflater: LayoutInflater): FragmentCreateBinding {
         return FragmentCreateBinding.inflate(inflater)
@@ -155,6 +169,9 @@ class CreateImageFragment :
             imgChangeCamera.setOnClickListener {
                 isFrontCamera = !isFrontCamera
                 startCamera(isFrontCamera)
+            }
+            imgFilter.setOnClickListener {
+                isFiltering = !isFiltering
             }
         }
     }
@@ -308,6 +325,7 @@ class CreateImageFragment :
         binding?.viewFinder?.visibility = View.VISIBLE
         binding?.constrainOption?.visibility = View.GONE
         binding?.lnOption?.visibility = View.VISIBLE
+        binding?.recycleViewFilterOption?.visibility = View.GONE
     }
 
     private fun setViewAfterCapture(bitmap: Bitmap) {
@@ -318,6 +336,8 @@ class CreateImageFragment :
         mMutableBitmap = bitmap.copy(Bitmap.Config.ARGB_8888, true)
         bitmapCapture = bitmap
         binding?.imgCapture?.setImageBitmap(mMutableBitmap)
+        filterAdapter = BitmapFilterAdapter(bitmap, requireActivity(), this)
+        binding?.recycleViewFilterOption?.adapter = filterAdapter
     }
 
     override fun onSaveSuccess() {
@@ -366,7 +386,7 @@ class CreateImageFragment :
                 (endPoint[0] - imageBounds.left) * (intrinsicWidth / imageBounds.width())
             val endY =
                 (endPoint[1] - imageBounds.top) * (intrinsicHeight / imageBounds.height())
-            mMutableBitmap?.let {
+            mMutableBitmap?.let { bitmap ->
                 // Tính toán hình chữ nhật cắt (crop rectangle) từ startPointF và endPointF
                 val left = minOf(startX, endX)
                 val top = minOf(startY, endY)
@@ -377,7 +397,7 @@ class CreateImageFragment :
                 // Tạo một bitmap mới từ phần đã cắt (crop) của bitmap gốc
                 croppedBitmap =
                     Bitmap.createBitmap(
-                        it,
+                        bitmap,
                         cropRect.left.toInt(),
                         cropRect.top.toInt(),
                         cropRect.width().toInt(),
@@ -407,5 +427,9 @@ class CreateImageFragment :
     override fun onStop() {
         mScaleGestureDetector = null
         super.onStop()
+    }
+
+    override fun filterPicked(colorFilter: ColorFilter) {
+        binding?.imgCapture?.colorFilter = colorFilter
     }
 }
