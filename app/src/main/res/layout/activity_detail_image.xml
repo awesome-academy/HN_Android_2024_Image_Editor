@@ -2,6 +2,7 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/container"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -12,6 +13,17 @@
         android:elevation="@dimen/dimen_2"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
+
+        <ImageView
+            android:id="@+id/imgContrast"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="@dimen/dimen_8"
+            android:padding="@dimen/dimen_8"
+            android:src="@drawable/ic_contrast"
+            app:layout_constraintBottom_toBottomOf="@id/imgFilter"
+            app:layout_constraintEnd_toStartOf="@id/imgFilter"
+            app:layout_constraintTop_toTopOf="@id/imgFilter" />
 
         <ImageView
             android:id="@+id/imgFilter"
@@ -64,10 +76,9 @@
         android:layout_height="wrap_content"
         android:elevation="@dimen/dimen_2"
         android:visibility="invisible"
-        app:layout_constraintBottom_toBottomOf="@id/constrainOption"
-        app:layout_constraintEnd_toEndOf="@id/constrainOption"
-        app:layout_constraintStart_toStartOf="@id/constrainOption"
-        app:layout_constraintTop_toTopOf="@id/constrainOption">
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
 
         <ImageView
             android:id="@+id/imgDone"
@@ -83,7 +94,7 @@
             android:id="@+id/imgCancel"
             android:layout_width="@dimen/dimen_32"
             android:layout_height="@dimen/dimen_32"
-            android:layout_marginEnd="@dimen/dimen_4"
+            android:layout_marginStart="@dimen/dimen_8"
             android:padding="@dimen/dimen_8"
             android:src="@drawable/ic_cancel"
             app:layout_constraintBottom_toBottomOf="@id/imgDone"
@@ -115,7 +126,7 @@
         android:orientation="vertical"
         android:visibility="gone"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/constrainOption">
+        app:layout_constraintTop_toBottomOf="@id/constrainConfirm">
 
         <RadioButton
             android:id="@+id/rbBlack"
@@ -174,12 +185,68 @@
         android:id="@+id/recycleViewFilterOption"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:visibility="gone"
         android:layout_marginBottom="@dimen/dimen_32"
         android:orientation="horizontal"
         android:paddingEnd="@dimen/dimen_8"
+        android:visibility="gone"
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
         app:layout_constraintBottom_toBottomOf="parent"
         tools:ignore="RtlSymmetry" />
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/constraintContrast"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/white"
+        android:paddingHorizontal="@dimen/dimen_8"
+        android:paddingTop="@dimen/dimen_8"
+        android:paddingBottom="@dimen/dimen_32"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent">
+
+        <TextView
+            android:id="@+id/tvContrast"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/contrast"
+            android:textColor="@color/black"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <SeekBar
+            android:id="@+id/sbContrast"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:progressTint="@color/saddle_brown"
+            android:thumbTint="@color/saddle_brown"
+            app:layout_constraintBottom_toBottomOf="@id/tvContrast"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="@id/sbBrightness"
+            app:layout_constraintTop_toTopOf="@id/tvContrast" />
+
+
+        <TextView
+            android:id="@+id/tvBrightness"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginVertical="@dimen/dimen_8"
+            android:text="@string/brightness"
+            android:textColor="@color/black"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tvContrast" />
+
+        <SeekBar
+            android:id="@+id/sbBrightness"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:progressTint="@color/saddle_brown"
+            android:thumbTint="@color/saddle_brown"
+            app:layout_constraintBottom_toBottomOf="@id/tvBrightness"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/tvBrightness"
+            app:layout_constraintTop_toTopOf="@id/tvBrightness" />
+
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

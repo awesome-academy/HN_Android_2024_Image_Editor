@@ -21,3 +21,5 @@ const val PHOTO_SEARCH_ENDPOINT = "search/photos"
 const val PER_PAGE = "per_page"
 const val DEFAULT_VALUE_ADDED = 5
 const val SPAN_COUNT = 3
+const val DEFAULT_PROGRESS_VALUE = 10
+const val RANGE_CONTRAST_AND_BRIGHTNESS = 10f

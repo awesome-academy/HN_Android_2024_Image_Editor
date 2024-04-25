@@ -45,6 +45,9 @@ class DownloadService() {
                     val fileName = "image/${UUID.randomUUID()}.jpg"
                     val directory =
                         Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+                    if (!directory.exists()) {
+                        directory.mkdirs() // Tạo thư mục nếu nó chưa tồn tại
+                    }
                     try {
                         val file = File(directory, fileName)
                         val outputStream = FileOutputStream(file)
@@ -65,6 +68,8 @@ class DownloadService() {
             onSuccess()
         } catch (e: Exception) {
             onError.invoke(Throwable(e))
+        } finally {
+            executorService.shutdown()
         }
     }
 
