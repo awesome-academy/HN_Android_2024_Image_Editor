@@ -50,6 +50,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
                     Manifest.permission.READ_MEDIA_IMAGES,
                     Manifest.permission.POST_NOTIFICATIONS,
                     Manifest.permission.CAMERA,
+                    Manifest.permission.MANAGE_EXTERNAL_STORAGE,
                 ),
             )
         } else {

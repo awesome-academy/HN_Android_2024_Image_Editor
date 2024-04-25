@@ -15,6 +15,7 @@ import android.view.GestureDetector
 import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
+import android.widget.SeekBar
 import android.widget.Toast
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageCapture
@@ -34,6 +35,9 @@ import com.example.imageEditor.custom.ImageListener
 import com.example.imageEditor.custom.OnFilterPicked
 import com.example.imageEditor.databinding.FragmentCreateBinding
 import com.example.imageEditor.repository.CreateImageRepository
+import com.example.imageEditor.utils.DEFAULT_PROGRESS_VALUE
+import com.example.imageEditor.utils.RANGE_CONTRAST_AND_BRIGHTNESS
+import com.example.imageEditor.utils.displayImageWithBitmap
 import com.example.imageEditor.utils.imageProxyToBitmap
 
 class CreateImageFragment :
@@ -44,31 +48,9 @@ class CreateImageFragment :
     private var mImageCapture: ImageCapture? = null
     private val mPresenter by lazy { CreateImagePresenter(CreateImageRepository.getInstance()) }
 
-    private val mImageListener by lazy { binding?.imgCapture?.let { ImageListener(it) } }
+    private val mImageListener by lazy { binding?.imgCapture?.let { ImageListener() } }
     private var mScaleGestureDetector: GestureDetector? = null
 
-    private var isDrawing = false
-        set(value) {
-            field = value
-            binding?.rgColor?.visibility = if (value) View.VISIBLE else View.GONE
-            if (isFiltering) {
-                binding?.recycleViewFilterOption?.visibility =
-                    if (value) View.GONE else View.VISIBLE
-            }
-        }
-    private var isCropping = false
-        set(value) {
-            field = value
-            if (value) {
-                binding?.cropView?.visibility = View.VISIBLE
-                binding?.constrainOption?.visibility = View.INVISIBLE
-                binding?.constrainConfirm?.visibility = View.VISIBLE
-                binding?.cropView?.setCropSuccessCallback(this)
-            } else {
-                binding?.cropView?.visibility = View.GONE
-                binding?.cropView?.removeCropCallback()
-            }
-        }
     private val mPath = Path()
 
     private var mCanvas: Canvas? = null
@@ -103,10 +85,6 @@ class CreateImageFragment :
 
     private var isFrontCamera = false
     private var isFiltering = false
-        set(value) {
-            field = value
-            binding?.recycleViewFilterOption?.visibility = if (value) View.VISIBLE else View.GONE
-        }
     private lateinit var filterAdapter: BitmapFilterAdapter
 
     override fun getViewBinding(inflater: LayoutInflater): FragmentCreateBinding {
@@ -115,6 +93,8 @@ class CreateImageFragment :
 
     override fun initView() {
         mPresenter.setView(this)
+        binding?.sbContrast?.progress = DEFAULT_PROGRESS_VALUE
+        binding?.sbBrightness?.progress = DEFAULT_PROGRESS_VALUE
     }
 
     override fun initData() {
@@ -139,29 +119,43 @@ class CreateImageFragment :
                 }
             }
             imgCrop.setOnClickListener {
-                isCropping = true
+                cropView.visibility = View.VISIBLE
+                cropView.setCropSuccessCallback(this@CreateImageFragment)
+                constrainConfirm.visibility = View.VISIBLE
+                constrainOption.visibility = View.GONE
             }
             imgCancel.setOnClickListener {
-                isDrawing = false
-                isCropping = false
-                constrainOption.visibility = View.VISIBLE
-                constrainConfirm.visibility = View.INVISIBLE
+                mImageListener?.addListenerOnImageView(imgCapture)
+                isFiltering = false
                 bitmapCapture?.let {
                     imgCapture.setImageBitmap(it)
                     mMutableBitmap = it.copy(Bitmap.Config.ARGB_8888, true)
                 }
+                imgCapture.clearColorFilter()
+                hideAndShowElement()
+                cropView.removeCropCallback()
+                sbContrast.progress = DEFAULT_PROGRESS_VALUE
+                sbBrightness.progress = DEFAULT_PROGRESS_VALUE
             }
             imgDone.setOnClickListener {
-                if (isCropping) {
+                if (cropView.haveInstanceListener()) {
                     croppedBitmap?.let { it1 ->
                         imgCapture.setImageBitmap(it1)
                         mMutableBitmap = it1.copy(Bitmap.Config.ARGB_8888, true)
                     }
-                    isCropping = false
+                    cropView.removeCropCallback()
+                    cropView.visibility = View.GONE
                 }
-                isDrawing = false
-                constrainConfirm.visibility = View.INVISIBLE
-                constrainOption.visibility = View.VISIBLE
+                if (isFiltering) {
+                    imgCapture.displayImageWithBitmap(imgCapture.drawToBitmap()) {
+                        mMutableBitmap = it.copy(Bitmap.Config.ARGB_8888, true)
+                    }
+                    sbContrast.progress = DEFAULT_PROGRESS_VALUE
+                    sbBrightness.progress = DEFAULT_PROGRESS_VALUE
+                    isFiltering = false
+                }
+                hideAndShowElement()
+                mImageListener?.addListenerOnImageView(imgCapture)
             }
             imgLight.setOnClickListener {
                 mFlashMode = !mFlashMode
@@ -171,16 +165,26 @@ class CreateImageFragment :
                 startCamera(isFrontCamera)
             }
             imgFilter.setOnClickListener {
-                isFiltering = !isFiltering
+                recycleViewFilterOption.visibility = View.VISIBLE
+                constrainConfirm.visibility = View.VISIBLE
+                constrainOption.visibility = View.GONE
             }
         }
+        contrastAndBrightness()
     }
 
     @SuppressLint("ClickableViewAccessibility")
     private fun drawListener() {
         binding?.apply {
+            imgDraw.setOnClickListener {
+                mImageListener?.removeListener()
+                constrainConfirm.visibility = View.VISIBLE
+                constrainOption.visibility = View.GONE
+                rgColor.visibility = View.VISIBLE
+            }
+
             imgCapture.setOnTouchListener { view, event ->
-                if (!isDrawing) {
+                if (mImageListener?.haveListener() == true) {
                     mScaleGestureDetector?.onTouchEvent(event)
                 } else {
                     val drawable = imgCapture.drawable
@@ -232,11 +236,6 @@ class CreateImageFragment :
                 view.performClick()
                 true
             }
-            imgDraw.setOnClickListener {
-                isDrawing = true
-                constrainConfirm.visibility = View.VISIBLE
-                constrainOption.visibility = View.INVISIBLE
-            }
             rgColor.setOnCheckedChangeListener { group, checkedId ->
                 when (checkedId) {
                     R.id.rbBlack -> mPaint.color = Color.BLACK
@@ -248,6 +247,81 @@ class CreateImageFragment :
                     R.id.rbWhite -> mPaint.color = Color.WHITE
                 }
             }
+        }
+    }
+
+    private fun contrastAndBrightness() {
+        binding?.apply {
+            imgContrast.setOnClickListener {
+                constraintContrast.visibility = View.VISIBLE
+                constrainConfirm.visibility = View.VISIBLE
+                constrainOption.visibility = View.GONE
+            }
+            sbContrast.setOnSeekBarChangeListener(
+                object : SeekBar.OnSeekBarChangeListener {
+                    override fun onProgressChanged(
+                        p0: SeekBar?,
+                        value: Int,
+                        p2: Boolean,
+                    ) {
+                        if (value > 0) {
+                            val contrast = value.toFloat() / RANGE_CONTRAST_AND_BRIGHTNESS
+                            imgCapture.contrast = contrast
+                        }
+                    }
+
+                    override fun onStartTrackingTouch(p0: SeekBar?) {
+                    }
+
+                    override fun onStopTrackingTouch(p0: SeekBar?) {
+                        p0?.let {
+                            if (p0.progress > 0) {
+                                val contrast = p0.progress.toFloat() / RANGE_CONTRAST_AND_BRIGHTNESS
+                                imgCapture.contrast = contrast
+                            }
+                        }
+                    }
+                },
+            )
+
+            sbBrightness.setOnSeekBarChangeListener(
+                object : SeekBar.OnSeekBarChangeListener {
+                    override fun onProgressChanged(
+                        p0: SeekBar?,
+                        value: Int,
+                        p2: Boolean,
+                    ) {
+                        if (value > 0) {
+                            val brightness = value.toFloat() / RANGE_CONTRAST_AND_BRIGHTNESS
+                            imgCapture.brightness = brightness
+                        }
+                    }
+
+                    override fun onStartTrackingTouch(p0: SeekBar?) {
+                    }
+
+                    override fun onStopTrackingTouch(p0: SeekBar?) {
+                        p0?.let {
+                            if (p0.progress > 0) {
+                                val brightness =
+                                    p0.progress.toFloat() / RANGE_CONTRAST_AND_BRIGHTNESS
+                                imgCapture.brightness = brightness
+                            }
+                        }
+                    }
+                },
+            )
+        }
+    }
+
+    private fun hideAndShowElement() {
+        binding?.apply {
+            recycleViewFilterOption.visibility = View.GONE
+            constraintContrast.visibility = View.GONE
+            constrainConfirm.visibility = View.GONE
+            constrainOption.visibility = View.VISIBLE
+            rgColor.visibility = View.GONE
+            cropView.visibility = View.GONE
         }
     }
 
@@ -321,11 +395,15 @@ class CreateImageFragment :
     }
 
     private fun resetView() {
+        isFiltering = false
         binding?.imgCapture?.alpha = 0F
         binding?.viewFinder?.visibility = View.VISIBLE
         binding?.constrainOption?.visibility = View.GONE
         binding?.lnOption?.visibility = View.VISIBLE
+        binding?.constraintContrast?.visibility = View.GONE
         binding?.recycleViewFilterOption?.visibility = View.GONE
+        binding?.sbContrast?.progress = DEFAULT_PROGRESS_VALUE
+        binding?.sbBrightness?.progress = DEFAULT_PROGRESS_VALUE
     }
 
     private fun setViewAfterCapture(bitmap: Bitmap) {
@@ -395,14 +473,16 @@ class CreateImageFragment :
                 val cropRect = RectF(left, top, right, bottom)
 
                 // Tạo một bitmap mới từ phần đã cắt (crop) của bitmap gốc
-                croppedBitmap =
-                    Bitmap.createBitmap(
-                        bitmap,
-                        cropRect.left.toInt(),
-                        cropRect.top.toInt(),
-                        cropRect.width().toInt(),
-                        cropRect.height().toInt(),
-                    )
+                if (cropRect.left > 0 && cropRect.top > 0) {
+                    croppedBitmap =
+                        Bitmap.createBitmap(
+                            bitmap,
+                            cropRect.left.toInt(),
+                            cropRect.top.toInt(),
+                            cropRect.width().toInt(),
+                            cropRect.height().toInt(),
+                        )
+                }
             }
         }
     }
@@ -425,11 +505,13 @@ class CreateImageFragment :
     }
 
     override fun onStop() {
+        mImageListener?.removeListener()
         mScaleGestureDetector = null
         super.onStop()
     }
 
     override fun filterPicked(colorFilter: ColorFilter) {
+        isFiltering = true
         binding?.imgCapture?.colorFilter = colorFilter
     }
 }
