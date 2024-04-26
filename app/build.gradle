@@ -19,7 +19,13 @@ android {
         def localPropertiesFile = rootProject.file("local.properties")
         if (localPropertiesFile.exists()) {
             localProperties.load(new FileInputStream(localPropertiesFile))
-            buildConfigField "String", "ACCESS_TOKEN", "\"${localProperties.getProperty('accessToken')}\""
+            buildConfigField "String", "CLIENT_ID", "\"Client-ID ${localProperties.getProperty('accessKey')}\""
+            buildConfigField "String", "ACCESS_KEY", "\"${localProperties.getProperty('accessKey')}\""
+            buildConfigField "String", "SECRET_KEY", "\"${localProperties.getProperty('clientSecret')}\""
+            buildConfigField "String", "BASE_URL_API", "\"${localProperties.getProperty('baseUrlApi')}\""
+            buildConfigField "String", "BASE_URL", "\"${localProperties.getProperty('baseUrl')}\""
+            buildConfigField "String", "REDIRECT_URI", "\"${localProperties.getProperty('redirectUri')}\""
+
         }
     }
 

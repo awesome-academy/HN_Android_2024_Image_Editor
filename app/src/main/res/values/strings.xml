@@ -17,4 +17,5 @@
     <string name="downloading">Downloading…</string>
     <string name="contrast">Contrast</string>
     <string name="brightness">Brightness</string>
+    <string name="un_authorize">Login session has expired</string>
 </resources>

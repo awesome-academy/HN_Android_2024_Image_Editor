@@ -67,11 +67,21 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/recycleViewImg" />
 
+    <ImageView
+        android:id="@+id/imgLiked"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/dimen_15"
+        android:layout_marginTop="@dimen/dimen_15"
+        android:src="@drawable/ic_liked"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/recycleViewImg" />
+
     <TextView
         android:id="@+id/tvLikes"
-        android:layout_marginStart="@dimen/dimen_8"
         android:layout_width="@dimen/dimen_0"
         android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/dimen_8"
         android:textColor="@color/black"
         app:layout_constraintBottom_toBottomOf="@id/imgLike"
         app:layout_constraintEnd_toEndOf="parent"
@@ -82,8 +92,8 @@
         android:id="@+id/tvDescription"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/dimen_5"
         android:layout_marginHorizontal="@dimen/dimen_15"
+        android:layout_marginTop="@dimen/dimen_5"
         android:textSize="@dimen/dimen_13sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

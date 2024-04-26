@@ -17,6 +17,13 @@ class HomeRepository(onListenProcess: OnListenProcess) {
         }
     }
 
+    fun likeImage(
+        id: String,
+        onFailure: () -> Unit,
+    ) {
+        networkService.likeImage(id, onFailure)
+    }
+
     companion object {
         private var instance: HomeRepository? = null
 

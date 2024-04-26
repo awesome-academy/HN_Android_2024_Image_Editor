@@ -112,3 +112,15 @@ fun colorFilterList(): List<ColorFilter> {
     colorFilters.add(ColorMatrixColorFilter(invertMatrix))
     return colorFilters
 }
+
+fun authorizeUrl(): String {
+    return "https://unsplash.com/oauth/authorize" +
+        "?client_id=" + ACCESS_KEY +
+        "&redirect_uri=" + REDIRECT_URI +
+        "&response_type=" + RESPONSE_TYPE +
+        "&scope=" + SCOPE
+}
+
+fun String.toAuthorizationCode(): String {
+    return this.substring(this.indexOf('=') + 1)
+}
