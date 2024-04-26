@@ -26,9 +26,9 @@ data class CoverPhoto(
     @SerializedName("id")
     val id: String,
     @SerializedName("liked_by_user")
-    val likedByUser: Boolean,
+    var likedByUser: Boolean,
     @SerializedName("likes")
-    val likes: Int,
+    var likes: Int,
     @SerializedName("links")
     val links: Links,
     @SerializedName("promoted_at")

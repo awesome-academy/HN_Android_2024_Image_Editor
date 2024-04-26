@@ -2,6 +2,7 @@ package com.example.imageEditor.ui.home.adapter
 
 import android.util.SparseIntArray
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import androidx.core.util.containsKey
 import androidx.core.util.set
@@ -15,23 +16,24 @@ import com.example.imageEditor.databinding.ItemCollectionBinding
 import com.example.imageEditor.model.CollectionModel
 import com.example.imageEditor.utils.displayImage
 
-class CollectionAdapter(private val onClickImage: OnClickImage) : ListAdapter<CollectionModel, CollectionAdapter.ViewHolder>(
-    object : DiffUtil.ItemCallback<CollectionModel>() {
-        override fun areItemsTheSame(
-            oldItem: CollectionModel,
-            newItem: CollectionModel,
-        ): Boolean {
-            return oldItem.id == newItem.id
-        }
+class CollectionAdapter(private val onClickImage: OnClickImage) :
+    ListAdapter<CollectionModel, CollectionAdapter.ViewHolder>(
+        object : DiffUtil.ItemCallback<CollectionModel>() {
+            override fun areItemsTheSame(
+                oldItem: CollectionModel,
+                newItem: CollectionModel,
+            ): Boolean {
+                return oldItem.id == newItem.id
+            }
 
-        override fun areContentsTheSame(
-            oldItem: CollectionModel,
-            newItem: CollectionModel,
-        ): Boolean {
-            return oldItem.id == newItem.id
-        }
-    },
-) {
+            override fun areContentsTheSame(
+                oldItem: CollectionModel,
+                newItem: CollectionModel,
+            ): Boolean {
+                return oldItem.id == newItem.id
+            }
+        },
+    ) {
     private val mChildRecyclerViewState = SparseIntArray()
 
     class ViewHolder(private val binding: ItemCollectionBinding) :
@@ -72,8 +74,29 @@ class CollectionAdapter(private val onClickImage: OnClickImage) : ListAdapter<Co
                 )
             binding.tvDescription.text = item.descriptionTextShow
 
+            if (item.coverPhoto.likedByUser) {
+                binding.imgLiked.visibility = View.VISIBLE
+                binding.imgLike.visibility = View.INVISIBLE
+            } else {
+                binding.imgLiked.visibility = View.INVISIBLE
+                binding.imgLike.visibility = View.VISIBLE
+            }
+
+            binding.imgLike.setOnClickListener {
+                binding.imgLiked.visibility = View.VISIBLE
+                binding.imgLike.visibility = View.INVISIBLE
+            }
+            binding.imgLiked.setOnClickListener {
+                binding.imgLiked.visibility = View.INVISIBLE
+                binding.imgLike.visibility = View.VISIBLE
+            }
+
             binding.recycleViewImg.setHasFixedSize(true)
-            val adapter = ImageAdapter(binding.root.context, item.previewPhotos, onClickImage)
+            val adapter =
+                ImageAdapter(binding.root.context, item.previewPhotos, onClickImage, onHided = {
+                    binding.imgLiked.visibility = View.VISIBLE
+                    binding.imgLike.visibility = View.INVISIBLE
+                })
             binding.recycleViewImg.adapter = adapter
 
             if (childRecyclerViewState.containsKey(index)) {

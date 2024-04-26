@@ -6,9 +6,13 @@ import com.example.imageEditor.model.CollectionModel
 interface HomeContract {
     interface View {
         fun setupCollections(list: List<CollectionModel>)
+
+        fun gotoAuthorize()
     }
 
     interface Presenter : BasePresenter<View> {
         fun getCollections(page: Int)
+
+        fun likeImage(id: String)
     }
 }
