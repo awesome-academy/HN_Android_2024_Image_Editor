@@ -115,6 +115,81 @@ fun postMethodHttpWithBearToken(
     }
 }
 
+fun getMethodHttpWithBearToken(
+    endPoint: String,
+    params: Map<String, String?>,
+    bearerToken: String,
+    onFailure: () -> Unit,
+): String {
+    var conn: HttpURLConnection? = null
+    try {
+        val builtURI = Uri.parse(BASE_URL_API + endPoint).buildUpon()
+        params.forEach { (key, value) ->
+            builtURI.appendQueryParameter(key, value)
+        }
+
+        val url = URL(builtURI.build().toString())
+        conn = url.openConnection() as HttpURLConnection
+        conn.setRequestProperty(
+            CONTENT_TYPE,
+            "application/json",
+        )
+        conn.setRequestProperty(ACCEPT, "application/json")
+        conn.setRequestProperty(
+            AUTHORIZATION,
+            "Bearer $bearerToken",
+        )
+        conn.connect()
+
+        return if (conn.responseCode == HttpURLConnection.HTTP_UNAUTHORIZED) {
+            onFailure()
+            ""
+        } else {
+            convertInputStreamToString(conn.inputStream)
+        }
+    } catch (e: Exception) {
+        throw e
+    } finally {
+        conn?.disconnect()
+    }
+}
+
+fun deleteMethodHttpWithBearToken(
+    endPoint: String,
+    bearerToken: String,
+    onFailure: () -> Unit,
+): String {
+    var conn: HttpURLConnection? = null
+    try {
+        val builtURI = Uri.parse(BASE_URL_API + endPoint).buildUpon()
+
+        val url = URL(builtURI.build().toString())
+        conn = url.openConnection() as HttpURLConnection
+        conn.requestMethod = "DELETE"
+        conn.setRequestProperty(
+            CONTENT_TYPE,
+            "application/json",
+        )
+        conn.setRequestProperty(ACCEPT, "application/json")
+        conn.setRequestProperty(
+            AUTHORIZATION,
+            "Bearer $bearerToken",
+        )
+        conn.connect()
+
+        return if (conn.responseCode == HttpURLConnection.HTTP_UNAUTHORIZED) {
+            onFailure()
+            ""
+        } else {
+            convertInputStreamToString(conn.inputStream)
+        }
+    } catch (e: Exception) {
+        throw e
+    } finally {
+        conn?.disconnect()
+    }
+}
+
 fun convertInputStreamToString(inputStream: InputStream): String {
     val stringBuilder = StringBuilder()
     BufferedReader(InputStreamReader(inputStream)).use { reader ->

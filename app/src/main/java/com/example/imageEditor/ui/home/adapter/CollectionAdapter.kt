@@ -66,7 +66,7 @@ class CollectionAdapter(private val onClickImage: OnClickImage) :
         ) {
             binding.imgUser.displayImage(item.user.profileImage.small)
             binding.tvUserName.text = item.user.username
-            binding.tvLocation.text = item.user.location
+            binding.tvLocation.text = item.user.location ?: ""
             binding.tvLikes.text =
                 binding.root.context.getString(
                     R.string.liked_by_others,

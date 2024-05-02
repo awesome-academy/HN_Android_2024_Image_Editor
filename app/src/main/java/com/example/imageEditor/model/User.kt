@@ -20,7 +20,7 @@ data class User(
     @SerializedName("links")
     val links: Links,
     @SerializedName("location")
-    val location: String,
+    val location: String?,
     @SerializedName("name")
     val name: String,
     @SerializedName("portfolio_url")

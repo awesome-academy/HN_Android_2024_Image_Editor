@@ -1,8 +1,10 @@
 package com.example.imageEditor.apiService
 
 import com.example.imageEditor.model.CollectionModel
+import com.example.imageEditor.model.PhotoModel
 import com.example.imageEditor.model.PhotoSearchModel
 import com.example.imageEditor.model.request.AuthorizeRequest
+import com.example.imageEditor.model.response.AuthorizeResponse
 
 class NetworkService(private val api: Api) {
     fun getCollections(
@@ -24,10 +26,10 @@ class NetworkService(private val api: Api) {
 
     fun authorize(
         body: AuthorizeRequest,
-        onSuccess: () -> Unit,
+        onSuccess: (AuthorizeResponse) -> Unit,
     ) {
         api.authorize(body) {
-            onSuccess()
+            onSuccess(it)
         }
     }
 
@@ -36,6 +38,22 @@ class NetworkService(private val api: Api) {
         onFailure: () -> Unit,
     ) {
         api.likeImage(id, onFailure)
+    }
+
+    fun dislikeImage(
+        id: String,
+        onFailure: () -> Unit,
+    ) {
+        api.dislikeImage(id, onFailure)
+    }
+
+    fun getFavoriteList(
+        name: String,
+        page: Int,
+        onResult: (List<PhotoModel>) -> Unit,
+        onFailure: () -> Unit,
+    ) {
+        api.getFavoriteList(name, page, onResult = { onResult(it) }, onFailure = onFailure)
     }
 
     companion object {

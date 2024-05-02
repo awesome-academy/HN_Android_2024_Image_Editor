@@ -1,6 +1,7 @@
 package com.example.imageEditor.apiService
 
 import com.example.imageEditor.model.CollectionModel
+import com.example.imageEditor.model.PhotoModel
 import com.example.imageEditor.model.PhotoSearchModel
 import com.example.imageEditor.model.request.AuthorizeRequest
 import com.example.imageEditor.model.response.AuthorizeResponse
@@ -25,6 +26,18 @@ interface Api {
 
     fun likeImage(
         id: String,
+        onFailure: () -> Unit,
+    )
+
+    fun dislikeImage(
+        id: String,
+        onFailure: () -> Unit,
+    )
+
+    fun getFavoriteList(
+        name: String,
+        page: Int,
+        onResult: (List<PhotoModel>) -> Unit,
         onFailure: () -> Unit,
     )
 }
