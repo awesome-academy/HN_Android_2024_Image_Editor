@@ -4,6 +4,7 @@ import android.util.Log
 import com.example.imageEditor.base.CustomFuture
 import com.example.imageEditor.base.OnListenProcess
 import com.example.imageEditor.model.CollectionModel
+import com.example.imageEditor.model.PhotoModel
 import com.example.imageEditor.model.PhotoSearchModel
 import com.example.imageEditor.model.request.AuthorizeRequest
 import com.example.imageEditor.model.response.AuthorizeResponse
@@ -13,8 +14,10 @@ import com.example.imageEditor.utils.PAGE
 import com.example.imageEditor.utils.PER_PAGE
 import com.example.imageEditor.utils.PHOTO_SEARCH_ENDPOINT
 import com.example.imageEditor.utils.QUERY_SEARCH
+import com.example.imageEditor.utils.deleteMethodHttpWithBearToken
 import com.example.imageEditor.utils.fromJsonToList
 import com.example.imageEditor.utils.getMethodHttp
+import com.example.imageEditor.utils.getMethodHttpWithBearToken
 import com.example.imageEditor.utils.postMethodHttp
 import com.example.imageEditor.utils.postMethodHttpWithBearToken
 import com.example.imageEditor.utils.toJson
@@ -159,6 +162,77 @@ class ApiImpl(private val onListenProcess: OnListenProcess) : Api {
                 },
             )
         executorService.submit(futureTask)
+    }
+
+    override fun dislikeImage(
+        id: String,
+        onFailure: () -> Unit,
+    ) {
+        if (mToken.isNullOrBlank()) {
+            onFailure()
+        }
+        val executorService: ExecutorService = Executors.newCachedThreadPool()
+        val futureTask: FutureTask<Unit> =
+            FutureTask(
+                Callable {
+                    try {
+                        mToken?.let {
+                            deleteMethodHttpWithBearToken(
+                                "photos/$id/like",
+                                it,
+                                onFailure,
+                            )
+                        }
+                        return@Callable
+                    } catch (e: Exception) {
+                        Log.e(">>>>>>>>>>", e.message.toString())
+                        throw Throwable(e)
+                    }
+                },
+            )
+        executorService.submit(futureTask)
+    }
+
+    override fun getFavoriteList(
+        name: String,
+        page: Int,
+        onResult: (List<PhotoModel>) -> Unit,
+        onFailure: () -> Unit,
+    ) {
+        if (mToken.isNullOrBlank()) {
+            onFailure()
+        }
+        val executorService: ExecutorService = Executors.newCachedThreadPool()
+        val futureTask: CustomFuture<List<PhotoModel>> =
+            CustomFuture(
+                Callable {
+                    try {
+                        val queryValue =
+                            mapOf(
+                                Pair(PAGE, page.toString()),
+                            )
+                        return@Callable Gson().fromJsonToList<PhotoModel>(
+                            getMethodHttpWithBearToken(
+                                "users/$name/likes",
+                                queryValue,
+                                mToken.toString(),
+                                onFailure,
+                            ),
+                        )
+                    } catch (e: Exception) {
+                        throw Throwable(e)
+                    }
+                },
+                onListenProcess,
+            )
+        executorService.submit(futureTask)
+        try {
+            onResult.invoke(futureTask.get())
+        } catch (e: Exception) {
+            onListenProcess.onError(Throwable(e))
+        } finally {
+            executorService.shutdown()
+        }
     }
 
     companion object {

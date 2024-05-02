@@ -6,11 +6,14 @@ import android.webkit.WebView
 import android.webkit.WebViewClient
 import com.example.imageEditor.base.BaseActivity
 import com.example.imageEditor.databinding.ActivityAuthorizeBinding
+import com.example.imageEditor.model.response.AuthorizeResponse
 import com.example.imageEditor.repository.AuthorizeRepository
 import com.example.imageEditor.ui.main.MainActivity
+import com.example.imageEditor.utils.AUTHORIZE_DATA
 import com.example.imageEditor.utils.SIGN_OF_AUTHORIZE
 import com.example.imageEditor.utils.authorizeUrl
 import com.example.imageEditor.utils.toAuthorizationCode
+import com.google.gson.Gson
 
 class AuthorizeActivity : BaseActivity<ActivityAuthorizeBinding>(), AuthorizeContract.View {
     private val mPresenter by lazy { AuthorizePresenter(AuthorizeRepository.getInstance(this)) }
@@ -39,7 +42,9 @@ class AuthorizeActivity : BaseActivity<ActivityAuthorizeBinding>(), AuthorizeCon
     override fun initListener() {
     }
 
-    override fun authorized() {
-        startActivity(Intent(this, MainActivity::class.java))
+    override fun authorized(data: AuthorizeResponse) {
+        val intent = Intent(this, MainActivity::class.java)
+        intent.putExtra(AUTHORIZE_DATA, Gson().toJson(data))
+        startActivity(intent)
     }
 }

@@ -12,6 +12,7 @@ import com.example.imageEditor.ui.create.CreateImageFragment
 import com.example.imageEditor.ui.favourite.FavouriteFragment
 import com.example.imageEditor.ui.home.HomeFragment
 import com.example.imageEditor.ui.search.SearchFragment
+import com.example.imageEditor.utils.AUTHORIZE_DATA
 import com.example.imageEditor.utils.CREATE_INDEX
 import com.example.imageEditor.utils.FAVORITE_INDEX
 import com.example.imageEditor.utils.HOME_INDEX
@@ -24,10 +25,15 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
             lifecycle,
         )
     }
+    private val mAuthorizeData by lazy {
+        intent.getStringExtra(AUTHORIZE_DATA)
+    }
     private val mHomeFragment by lazy { HomeFragment() }
     private val mSearchFragment by lazy { SearchFragment() }
     private val mCreateImageFragment by lazy { CreateImageFragment() }
-    private val mFavouriteFragment by lazy { FavouriteFragment() }
+    private val mFavouriteFragment by lazy {
+        FavouriteFragment.newInstance(mAuthorizeData ?: "")
+    }
 
     override fun getViewBinding(): ActivityMainBinding {
         return ActivityMainBinding.inflate(layoutInflater)

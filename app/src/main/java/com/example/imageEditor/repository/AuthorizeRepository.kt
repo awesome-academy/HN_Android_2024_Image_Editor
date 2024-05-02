@@ -4,15 +4,16 @@ import com.example.imageEditor.apiService.ApiImpl
 import com.example.imageEditor.apiService.NetworkService
 import com.example.imageEditor.base.OnListenProcess
 import com.example.imageEditor.model.request.AuthorizeRequest
+import com.example.imageEditor.model.response.AuthorizeResponse
 
 class AuthorizeRepository(onListenProcess: OnListenProcess) {
     private val networkService = NetworkService.getInstance(ApiImpl.getInstance(onListenProcess))
 
     fun authorize(
         body: AuthorizeRequest,
-        onSuccess: () -> Unit,
+        onSuccess: (AuthorizeResponse) -> Unit,
     ) {
-        networkService.authorize(body, onSuccess = { onSuccess() })
+        networkService.authorize(body, onSuccess = { onSuccess(it) })
     }
 
     companion object {

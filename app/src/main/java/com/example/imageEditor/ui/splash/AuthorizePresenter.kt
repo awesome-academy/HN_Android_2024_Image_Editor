@@ -19,7 +19,7 @@ class AuthorizePresenter(private val authorizeRepository: AuthorizeRepository) :
                 code = authorizationCode,
             )
         authorizeRepository.authorize(authorizeRequest) {
-            mView?.authorized()
+            mView?.authorized(it)
         }
     }
 
