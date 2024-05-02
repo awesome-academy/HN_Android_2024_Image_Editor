@@ -32,3 +32,4 @@ const val DEFAULT_PROGRESS_VALUE = 10
 const val RANGE_CONTRAST_AND_BRIGHTNESS = 10f
 const val SIGN_OF_AUTHORIZE = "authorize/native?code"
 const val AUTHORIZE_DATA = "AUTHORIZE_DATA"
+const val DEFAULT_EMOJI_SIZE = 48f

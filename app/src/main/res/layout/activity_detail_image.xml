@@ -15,6 +15,15 @@
         app:layout_constraintTop_toTopOf="parent">
 
         <ImageView
+            android:id="@+id/imgIcon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_add_icon"
+            app:layout_constraintBottom_toBottomOf="@id/imgContrast"
+            app:layout_constraintEnd_toStartOf="@id/imgContrast"
+            app:layout_constraintTop_toTopOf="@id/imgContrast" />
+
+        <ImageView
             android:id="@+id/imgContrast"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -107,6 +116,18 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:scaleType="fitXY" />
+
+    <ImageView
+        android:id="@+id/imgEmojiPreview"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:minHeight="@dimen/dimen_48"
+        android:minWidth="@dimen/dimen_48"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="@id/img"
+        app:layout_constraintEnd_toEndOf="@id/img"
+        app:layout_constraintStart_toStartOf="@id/img"
+        app:layout_constraintTop_toTopOf="@id/img" />
 
     <com.example.imageEditor.custom.CropOverlayView
         android:id="@+id/cropView"
@@ -246,6 +267,25 @@
             app:layout_constraintStart_toEndOf="@+id/tvBrightness"
             app:layout_constraintTop_toTopOf="@id/tvBrightness" />
 
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/parentEmoji"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dimen_250"
+        android:background="@color/white"
+        android:orientation="vertical"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
+
+        <androidx.emoji2.emojipicker.EmojiPickerView
+            android:id="@+id/emojiPicker"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:emojiGridColumns="15" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
