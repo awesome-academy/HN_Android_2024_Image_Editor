@@ -15,6 +15,7 @@ import android.view.GestureDetector
 import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
+import android.widget.ImageView
 import android.widget.SeekBar
 import android.widget.Toast
 import androidx.camera.core.CameraSelector
@@ -25,6 +26,7 @@ import androidx.camera.core.ImageCaptureException
 import androidx.camera.core.ImageProxy
 import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import androidx.core.view.drawToBitmap
 import com.example.imageEditor.R
@@ -33,11 +35,16 @@ import com.example.imageEditor.custom.BitmapFilterAdapter
 import com.example.imageEditor.custom.CropSuccessCallback
 import com.example.imageEditor.custom.ImageListener
 import com.example.imageEditor.custom.OnFilterPicked
+import com.example.imageEditor.custom.OnSwipeTouchListener
 import com.example.imageEditor.databinding.FragmentCreateBinding
 import com.example.imageEditor.repository.CreateImageRepository
+import com.example.imageEditor.utils.DEFAULT_EMOJI_SIZE
 import com.example.imageEditor.utils.DEFAULT_PROGRESS_VALUE
 import com.example.imageEditor.utils.RANGE_CONTRAST_AND_BRIGHTNESS
 import com.example.imageEditor.utils.displayImageWithBitmap
+import com.example.imageEditor.utils.dpToPx
+import com.example.imageEditor.utils.emojiToDrawable
+import com.example.imageEditor.utils.getEmojiDrawable
 import com.example.imageEditor.utils.imageProxyToBitmap
 
 class CreateImageFragment :
@@ -85,7 +92,9 @@ class CreateImageFragment :
 
     private var isFrontCamera = false
     private var isFiltering = false
+    private val mListEmoji = mutableListOf<ImageView>()
     private lateinit var filterAdapter: BitmapFilterAdapter
+    private lateinit var emoji: String
 
     override fun getViewBinding(inflater: LayoutInflater): FragmentCreateBinding {
         return FragmentCreateBinding.inflate(inflater)
@@ -100,10 +109,12 @@ class CreateImageFragment :
     override fun initData() {
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     override fun initListener() {
         mScaleGestureDetector?.setOnDoubleTapListener(mImageListener)
         drawListener()
         binding?.apply {
+            mImageListener?.addListenerOnImageView(imgCapture)
             btCapture.setOnClickListener {
                 takePhoto()
             }
@@ -114,6 +125,9 @@ class CreateImageFragment :
                 resetView()
             }
             imgDownLoad.setOnClickListener {
+                mListEmoji.forEach {
+                    getEmojiDrawable(it, imgCapture)
+                }
                 binding?.imgCapture?.drawToBitmap(Bitmap.Config.ARGB_8888)?.let {
                     mPresenter.saveImage(it)
                 }
@@ -154,6 +168,27 @@ class CreateImageFragment :
                     sbBrightness.progress = DEFAULT_PROGRESS_VALUE
                     isFiltering = false
                 }
+                if (imgEmojiPreview.visibility == View.VISIBLE) {
+                    if (emoji.isNotBlank()) {
+                        val layoutParams =
+                            ConstraintLayout.LayoutParams(
+                                DEFAULT_EMOJI_SIZE.dpToPx(requireContext()),
+                                DEFAULT_EMOJI_SIZE.dpToPx(requireContext()),
+                            )
+                        layoutParams.startToStart = R.id.imgCapture
+                        layoutParams.topToTop = R.id.imgCapture
+                        layoutParams.endToEnd = R.id.imgCapture
+                        layoutParams.bottomToBottom = R.id.imgCapture
+                        val imageView =
+                            ImageView(requireContext()).apply {
+                                this.layoutParams = layoutParams
+                                setImageDrawable(emojiToDrawable(emoji, requireContext()))
+                                setOnTouchListener(OnSwipeTouchListener(this))
+                            }
+                        mListEmoji.add(imageView)
+                        root.addView(imageView)
+                    }
+                }
                 hideAndShowElement()
                 mImageListener?.addListenerOnImageView(imgCapture)
             }
@@ -168,6 +203,17 @@ class CreateImageFragment :
                 recycleViewFilterOption.visibility = View.VISIBLE
                 constrainConfirm.visibility = View.VISIBLE
                 constrainOption.visibility = View.GONE
+            }
+            imgIcon.setOnClickListener {
+                parentEmoji.visibility = View.VISIBLE
+                constrainConfirm.visibility = View.VISIBLE
+                constrainOption.visibility = View.GONE
+                imgEmojiPreview.visibility = View.VISIBLE
+            }
+            emojiPicker.setOnEmojiPickedListener {
+                emoji = it.emoji
+                imgEmojiPreview.setImageDrawable(null)
+                imgEmojiPreview.setImageDrawable(emojiToDrawable(it.emoji, requireContext()))
             }
         }
         contrastAndBrightness()
@@ -322,6 +368,9 @@ class CreateImageFragment :
             constrainOption.visibility = View.VISIBLE
             rgColor.visibility = View.GONE
             cropView.visibility = View.GONE
+            parentEmoji.visibility = View.GONE
+            imgEmojiPreview.setImageDrawable(null)
+            imgEmojiPreview.visibility = View.GONE
         }
     }
 
@@ -404,6 +453,12 @@ class CreateImageFragment :
         binding?.recycleViewFilterOption?.visibility = View.GONE
         binding?.sbContrast?.progress = DEFAULT_PROGRESS_VALUE
         binding?.sbBrightness?.progress = DEFAULT_PROGRESS_VALUE
+        if (mListEmoji.isNotEmpty()) {
+            mListEmoji.forEach {
+                binding?.root?.removeView(it)
+            }
+            mListEmoji.clear()
+        }
     }
 
     private fun setViewAfterCapture(bitmap: Bitmap) {

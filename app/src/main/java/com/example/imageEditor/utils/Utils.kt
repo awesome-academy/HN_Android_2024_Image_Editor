@@ -1,15 +1,24 @@
 package com.example.imageEditor.utils
 
+import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.graphics.Canvas
 import android.graphics.ColorFilter
 import android.graphics.ColorMatrix
 import android.graphics.ColorMatrixColorFilter
+import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
 import android.text.SpannableString
 import android.text.Spanned
 import android.text.style.DrawableMarginSpan
+import android.view.View
+import android.widget.ImageView
+import android.widget.TextView
 import androidx.camera.core.ImageProxy
+import androidx.core.graphics.drawable.toDrawable
+import androidx.core.view.drawToBitmap
+import androidx.emoji2.text.EmojiCompat
 
 fun setSpanForString(
     text: String,
@@ -123,4 +132,60 @@ fun authorizeUrl(): String {
 
 fun String.toAuthorizationCode(): String {
     return this.substring(this.indexOf('=') + 1)
+}
+
+fun emojiToDrawable(
+    emoji: String,
+    context: Context,
+): Drawable {
+    val processedEmoji = EmojiCompat.get().process(emoji)
+
+    // Tạo TextView ẩn để hiển thị emoji
+    val textView = TextView(context)
+    textView.text = processedEmoji
+
+    // Đảm bảo TextView có kích thước đủ lớn để hiển thị emoji
+    textView.measure(
+        View.MeasureSpec.UNSPECIFIED,
+        View.MeasureSpec.UNSPECIFIED,
+    )
+    textView.layout(0, 0, textView.measuredWidth, textView.measuredHeight)
+
+    // Chụp TextView vào một Bitmap
+    val bitmap =
+        Bitmap.createBitmap(
+            textView.measuredWidth,
+            textView.measuredHeight,
+            Bitmap.Config.ARGB_8888,
+        )
+    val canvas = Canvas(bitmap)
+    textView.draw(canvas)
+
+    // Tạo Drawable từ Bitmap
+
+    return BitmapDrawable(context.resources, bitmap)
+}
+
+fun getEmojiDrawable(
+    emoji: ImageView,
+    imageView: ImageView,
+) {
+    val bitmap = imageView.drawToBitmap()
+
+// Tạo một Canvas từ Bitmap
+    val canvas = Canvas(bitmap)
+
+// Vẽ Drawable hoặc Bitmap lên Canvas tại vị trí mong muốn
+    val drawable = emoji.drawToBitmap().toDrawable(emoji.resources)
+    val x = emoji.x.toInt() // Tọa độ X mong muốn
+    val y = emoji.y.toInt() // Tọa độ Y mong muốn
+    drawable.setBounds(x, y, x + drawable.intrinsicWidth, y + drawable.intrinsicHeight)
+    drawable.draw(canvas)
+
+// Đặt Bitmap này làm Drawable cho ImageView
+    imageView.setImageDrawable(BitmapDrawable(imageView.resources, bitmap))
+}
+
+fun Float.dpToPx(context: Context): Int {
+    return (this * context.resources.displayMetrics.density).toInt()
 }

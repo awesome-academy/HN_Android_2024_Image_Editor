@@ -12,9 +12,11 @@ import android.graphics.RectF
 import android.view.GestureDetector
 import android.view.MotionEvent
 import android.view.View
+import android.widget.ImageView
 import android.widget.SeekBar
 import android.widget.SeekBar.OnSeekBarChangeListener
 import android.widget.Toast
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.view.drawToBitmap
 import com.example.imageEditor.R
 import com.example.imageEditor.base.BaseActivity
@@ -22,13 +24,18 @@ import com.example.imageEditor.custom.CropSuccessCallback
 import com.example.imageEditor.custom.FilterAdapter
 import com.example.imageEditor.custom.ImageListener
 import com.example.imageEditor.custom.OnFilterPicked
+import com.example.imageEditor.custom.OnSwipeTouchListener
 import com.example.imageEditor.databinding.ActivityDetailImageBinding
 import com.example.imageEditor.repository.DetailRepository
+import com.example.imageEditor.utils.DEFAULT_EMOJI_SIZE
 import com.example.imageEditor.utils.DEFAULT_PROGRESS_VALUE
 import com.example.imageEditor.utils.RANGE_CONTRAST_AND_BRIGHTNESS
 import com.example.imageEditor.utils.URL
 import com.example.imageEditor.utils.displayImage
 import com.example.imageEditor.utils.displayImageWithBitmap
+import com.example.imageEditor.utils.dpToPx
+import com.example.imageEditor.utils.emojiToDrawable
+import com.example.imageEditor.utils.getEmojiDrawable
 
 class ImageDetailActivity :
     BaseActivity<ActivityDetailImageBinding>(),
@@ -60,6 +67,8 @@ class ImageDetailActivity :
     private var mLastTouchX = 0f
     private var mLastTouchY: Float = 0f
     private var croppedBitmap: Bitmap? = null
+    private val mListEmoji = mutableListOf<ImageView>()
+    private lateinit var emoji: String
     private lateinit var filterAdapter: FilterAdapter
 
     override fun getViewBinding(): ActivityDetailImageBinding {
@@ -98,6 +107,9 @@ class ImageDetailActivity :
         mScaleGestureDetector?.setOnDoubleTapListener(mImageListener)
         binding.imgDownLoad.setOnClickListener {
             if (mChangeImg) {
+                mListEmoji.forEach {
+                    getEmojiDrawable(it, binding.img)
+                }
                 mImageDetailPresenter.saveImage(bitmap = binding.img.drawToBitmap())
             } else {
                 mUrl?.let {
@@ -126,6 +138,28 @@ class ImageDetailActivity :
                 binding.sbBrightness.progress = DEFAULT_PROGRESS_VALUE
                 isFiltering = false
             }
+            if (binding.imgEmojiPreview.visibility == View.VISIBLE) {
+                if (emoji.isNotBlank()) {
+                    mChangeImg = true
+                    val layoutParams =
+                        ConstraintLayout.LayoutParams(
+                            DEFAULT_EMOJI_SIZE.dpToPx(this),
+                            DEFAULT_EMOJI_SIZE.dpToPx(this),
+                        )
+                    layoutParams.startToStart = R.id.img
+                    layoutParams.topToTop = R.id.img
+                    layoutParams.endToEnd = R.id.img
+                    layoutParams.bottomToBottom = R.id.img
+                    val imageView =
+                        ImageView(this).apply {
+                            this.layoutParams = layoutParams
+                            setImageDrawable(emojiToDrawable(emoji, this@ImageDetailActivity))
+                            setOnTouchListener(OnSwipeTouchListener(this))
+                        }
+                    mListEmoji.add(imageView)
+                    binding.root.addView(imageView)
+                }
+            }
             hideAndShowElement()
             mImageListener.addListenerOnImageView(binding.img)
         }
@@ -138,6 +172,17 @@ class ImageDetailActivity :
             binding.constrainOption.visibility = View.GONE
         }
         contrastAndBrightness()
+        binding.imgIcon.setOnClickListener {
+            binding.parentEmoji.visibility = View.VISIBLE
+            binding.constrainConfirm.visibility = View.VISIBLE
+            binding.constrainOption.visibility = View.GONE
+            binding.imgEmojiPreview.visibility = View.VISIBLE
+        }
+        binding.emojiPicker.setOnEmojiPickedListener {
+            emoji = it.emoji
+            binding.imgEmojiPreview.setImageDrawable(null)
+            binding.imgEmojiPreview.setImageDrawable(emojiToDrawable(it.emoji, this))
+        }
     }
 
     private fun contrastAndBrightness() {
@@ -274,6 +319,15 @@ class ImageDetailActivity :
         mImageListener.addListenerOnImageView(binding.img)
         binding.sbContrast.progress = DEFAULT_PROGRESS_VALUE
         binding.sbBrightness.progress = DEFAULT_PROGRESS_VALUE
+        binding.parentEmoji.visibility = View.GONE
+        binding.imgEmojiPreview.setImageDrawable(null)
+        binding.imgEmojiPreview.visibility = View.GONE
+        if (mListEmoji.isNotEmpty()) {
+            mListEmoji.forEach {
+                binding.root.removeView(it)
+            }
+            mListEmoji.clear()
+        }
     }
 
     private fun hideAndShowElement() {
@@ -283,6 +337,9 @@ class ImageDetailActivity :
         binding.constrainOption.visibility = View.VISIBLE
         binding.rgColor.visibility = View.GONE
         binding.cropView.visibility = View.GONE
+        binding.parentEmoji.visibility = View.GONE
+        binding.imgEmojiPreview.setImageDrawable(null)
+        binding.imgEmojiPreview.visibility = View.GONE
     }
 
     override fun onDestroy() {
@@ -293,6 +350,18 @@ class ImageDetailActivity :
 
     override fun onSaveSuccess() {
         Toast.makeText(this, getString(R.string.save_success), Toast.LENGTH_LONG).show()
+        mUrl?.let {
+            binding.img.displayImage(it) { bitmap ->
+                mMutableBitmap = bitmap.copy(Bitmap.Config.ARGB_8888, true)
+            }
+            binding.img.clearColorFilter()
+            if (mListEmoji.isNotEmpty()) {
+                mListEmoji.forEach {
+                    binding.root.removeView(it)
+                }
+                mListEmoji.clear()
+            }
+        }
     }
 
     override fun onSaveError(throwable: Throwable) {
