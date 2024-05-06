@@ -1,9 +1,11 @@
 package com.example.imageEditor.ui.favourite.adapter
 
+import android.annotation.SuppressLint
 import android.util.SparseBooleanArray
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.text.HtmlCompat
 import androidx.core.util.containsKey
 import androidx.core.util.set
 import androidx.recyclerview.widget.DiffUtil
@@ -37,6 +39,7 @@ class FavoriteAdapter(private val onClickImage: OnClickImage) :
 
     class ViewHolder(private val binding: ItemFavoriteBinding) :
         RecyclerView.ViewHolder(binding.root) {
+        @SuppressLint("StringFormatMatches")
         fun bindView(
             photo: PhotoModel,
             onClickImage: OnClickImage,
@@ -48,10 +51,14 @@ class FavoriteAdapter(private val onClickImage: OnClickImage) :
             binding.tvLocation.text = photo.user.location ?: ""
             binding.imgUser.displayImage(photo.user.profileImage.small)
             binding.tvLikes.text =
-                binding.root.context.getString(
-                    R.string.liked_by_others,
-                    photo.likes.toString(),
+                HtmlCompat.fromHtml(
+                    binding.tvLikes.context.getString(
+                        R.string.liked_by_others,
+                        photo.likes,
+                    ),
+                    HtmlCompat.FROM_HTML_MODE_LEGACY,
                 )
+
             binding.tvDescription.text = photo.description
             if (mImageStateList.containsKey(position)) {
                 mImageStateList.get(position).let {

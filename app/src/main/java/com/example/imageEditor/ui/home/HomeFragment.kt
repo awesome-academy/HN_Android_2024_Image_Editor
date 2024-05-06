@@ -45,7 +45,7 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(), HomeContract.View, OnC
                     super.onScrolled(recyclerView, dx, dy)
                     val linearLayoutManager: LinearLayoutManager =
                         recyclerView.layoutManager as LinearLayoutManager
-                    if (dy > 0 && linearLayoutManager.findLastCompletelyVisibleItemPosition() == mAdapter.currentList.size - 1) {
+                    if (dy > 0 && linearLayoutManager.findLastCompletelyVisibleItemPosition() + 1 == mAdapter.currentList.size - 1) {
                         mPageQuery++
                         mHomePresenter.getCollections(mPageQuery)
                     }
@@ -62,7 +62,8 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(), HomeContract.View, OnC
 
     override fun gotoAuthorize() {
         requireActivity().runOnUiThread {
-            Toast.makeText(requireActivity(), getString(R.string.un_authorize), Toast.LENGTH_SHORT).show()
+            Toast.makeText(requireActivity(), getString(R.string.un_authorize), Toast.LENGTH_SHORT)
+                .show()
             val intent = Intent(requireActivity(), AuthorizeActivity::class.java)
             intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK
             startActivity(intent)

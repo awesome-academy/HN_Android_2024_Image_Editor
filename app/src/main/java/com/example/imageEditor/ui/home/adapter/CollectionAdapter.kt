@@ -1,9 +1,11 @@
 package com.example.imageEditor.ui.home.adapter
 
+import android.annotation.SuppressLint
 import android.util.SparseIntArray
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.text.HtmlCompat
 import androidx.core.util.containsKey
 import androidx.core.util.set
 import androidx.recyclerview.widget.DiffUtil
@@ -58,6 +60,7 @@ class CollectionAdapter(private val onClickImage: OnClickImage) :
             }
         }
 
+        @SuppressLint("StringFormatMatches")
         fun bindView(
             item: CollectionModel,
             childRecyclerViewState: SparseIntArray,
@@ -68,10 +71,14 @@ class CollectionAdapter(private val onClickImage: OnClickImage) :
             binding.tvUserName.text = item.user.username
             binding.tvLocation.text = item.user.location ?: ""
             binding.tvLikes.text =
-                binding.root.context.getString(
-                    R.string.liked_by_others,
-                    item.coverPhoto.likes.toString(),
+                HtmlCompat.fromHtml(
+                    binding.tvLikes.context.getString(
+                        R.string.liked_by_others,
+                        item.coverPhoto.likes,
+                    ),
+                    HtmlCompat.FROM_HTML_MODE_LEGACY,
                 )
+
             binding.tvDescription.text = item.descriptionTextShow
 
             if (item.coverPhoto.likedByUser) {

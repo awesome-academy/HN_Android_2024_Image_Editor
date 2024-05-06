@@ -15,7 +15,7 @@ interface Api {
     fun searchPhotos(
         page: Int,
         query: String,
-        perPage: Int? = 20,
+        perPage: Int? = 10,
         onResult: (PhotoSearchModel?) -> Unit,
     )
 

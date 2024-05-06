@@ -46,6 +46,5 @@ class AuthorizeActivity : BaseActivity<ActivityAuthorizeBinding>(), AuthorizeCon
         val intent = Intent(this, MainActivity::class.java)
         intent.putExtra(AUTHORIZE_DATA, Gson().toJson(data))
         startActivity(intent)
-        finish()
     }
 }

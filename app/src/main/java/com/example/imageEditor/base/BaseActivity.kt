@@ -1,5 +1,6 @@
 package com.example.imageEditor.base
 
+import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -21,6 +22,10 @@ abstract class BaseActivity<VB : ViewBinding> : AppCompatActivity(), OnListenPro
         super.onCreate(savedInstanceState)
         _binding = getViewBinding()
         setContentView(_binding.root)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            val decor = window.decorView
+            decor.systemUiVisibility = View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
+        }
         initView()
         initListener()
     }

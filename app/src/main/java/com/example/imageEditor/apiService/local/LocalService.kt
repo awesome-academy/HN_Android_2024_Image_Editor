@@ -30,6 +30,7 @@ class LocalService(private val dataSource: DataSource) {
     companion object {
         private var instance: LocalService? = null
 
+        @Synchronized
         fun getInstance(dataSource: DataSource): LocalService {
             if (instance == null) {
                 instance = LocalService(dataSource)

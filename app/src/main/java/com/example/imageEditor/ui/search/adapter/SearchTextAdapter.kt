@@ -10,7 +10,7 @@ import com.example.imageEditor.R
 import com.example.imageEditor.model.QueryModel
 
 class SearchTextAdapter(
-    private val deleteItemCallback: DeleteItemCallback,
+    private val searchItemCallback: SearchItemCallback,
     private val dataList: MutableList<QueryModel>,
 ) :
     RecyclerView.Adapter<SearchTextAdapter.ViewHolder>() {
@@ -21,11 +21,13 @@ class SearchTextAdapter(
         fun bind(
             queryModel: QueryModel,
             onDelete: () -> Unit,
+            onSelectQuery: (String) -> Unit,
         ) {
             tvContent.text = queryModel.content
             imgDelete.setOnClickListener {
                 onDelete()
             }
+            tvContent.setOnClickListener { onSelectQuery(tvContent.text.toString()) }
         }
     }
 
@@ -49,8 +51,9 @@ class SearchTextAdapter(
         holder.bind(
             dataList[position],
             onDelete = {
-                deleteItemCallback.deleteItemQuery(dataList[position].id, position)
+                searchItemCallback.deleteItemQuery(dataList[position].id, position)
             },
+            onSelectQuery = { searchItemCallback.selectQuery(it) },
         )
     }
 
