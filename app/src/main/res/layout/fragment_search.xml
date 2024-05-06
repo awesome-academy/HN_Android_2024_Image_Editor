@@ -107,15 +107,17 @@
         android:layout_width="match_parent"
         android:layout_height="@dimen/dimen_0"
         android:layout_marginTop="@dimen/dimen_7"
+        app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/radioGroup" />
+        app:layout_constraintTop_toBottomOf="@+id/radioGroup"
+        app:spanCount="3" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recycleViewSearch"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:maxHeight="@dimen/dimen_250"
         android:background="@color/white"
+        android:maxHeight="@dimen/dimen_250"
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
         app:layout_constraintEnd_toEndOf="@id/searchView"
         app:layout_constraintStart_toStartOf="@id/searchView"

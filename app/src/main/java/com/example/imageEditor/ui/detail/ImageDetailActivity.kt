@@ -77,7 +77,6 @@ class ImageDetailActivity :
 
     override fun initView() {
         mImageDetailPresenter.setView(this)
-        mImageListener.addListenerOnImageView(binding.img)
         mScaleGestureDetector =
             GestureDetector(
                 this,
@@ -98,6 +97,7 @@ class ImageDetailActivity :
 
     @SuppressLint("ClickableViewAccessibility")
     override fun initListener() {
+        mImageListener.addListenerOnImageView(binding.img)
         binding.imgCrop.setOnClickListener {
             binding.cropView.visibility = View.VISIBLE
             binding.cropView.setCropSuccessCallback(this)

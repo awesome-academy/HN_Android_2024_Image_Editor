@@ -9,8 +9,8 @@ import android.view.inputmethod.InputMethodManager
 import androidx.appcompat.widget.SearchView.OnQueryTextListener
 import androidx.core.content.ContextCompat
 import androidx.core.view.forEachIndexed
+import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.example.imageEditor.R
 import com.example.imageEditor.base.BaseFragment
 import com.example.imageEditor.databinding.FragmentSearchBinding
@@ -18,18 +18,16 @@ import com.example.imageEditor.model.PhotoSearchModel
 import com.example.imageEditor.model.QueryModel
 import com.example.imageEditor.repository.SearchRepository
 import com.example.imageEditor.ui.detail.ImageDetailActivity
-import com.example.imageEditor.ui.search.adapter.DeleteItemCallback
 import com.example.imageEditor.ui.search.adapter.SearchImageAdapter
+import com.example.imageEditor.ui.search.adapter.SearchItemCallback
 import com.example.imageEditor.ui.search.adapter.SearchTextAdapter
-import com.example.imageEditor.utils.DEFAULT_VALUE_ADDED
-import com.example.imageEditor.utils.SPAN_COUNT
 import com.example.imageEditor.utils.URL
 import com.example.imageEditor.utils.setSpanForString
 
 class SearchFragment :
     BaseFragment<FragmentSearchBinding>(),
     SearchContract.View,
-    DeleteItemCallback {
+    SearchItemCallback {
     private val mPresenter by lazy { SearchPresenter(SearchRepository.getInstance(this)) }
     private val mAdapter by lazy {
         SearchImageAdapter(onClickImage = {
@@ -38,6 +36,7 @@ class SearchFragment :
             startActivity(intent)
         })
     }
+
     private var mQueryList = mutableListOf<QueryModel>()
     private val mSearchTextAdapter by lazy {
         SearchTextAdapter(this, mQueryList)
@@ -57,13 +56,7 @@ class SearchFragment :
                 resources.getDrawable(R.drawable.ic_shop, null),
             )
 
-        binding?.recycleView?.apply {
-            val layoutManager =
-                StaggeredGridLayoutManager(SPAN_COUNT, StaggeredGridLayoutManager.VERTICAL)
-            layoutManager.setGapStrategy(StaggeredGridLayoutManager.GAP_HANDLING_MOVE_ITEMS_BETWEEN_SPANS)
-            this.layoutManager = layoutManager
-            adapter = mAdapter
-        }
+        binding?.recycleView?.adapter = mAdapter
 
         binding?.recycleViewSearch?.adapter = mSearchTextAdapter
     }
@@ -82,12 +75,13 @@ class SearchFragment :
                     dy: Int,
                 ) {
                     super.onScrolled(recyclerView, dx, dy)
-                    val totalItemCount = recyclerView.layoutManager?.itemCount ?: 0
-                    val lastVisibleItemPositions =
-                        (recyclerView.layoutManager as StaggeredGridLayoutManager).findLastVisibleItemPositions(
-                            null,
-                        )[0]
-                    if ((lastVisibleItemPositions + DEFAULT_VALUE_ADDED) >= totalItemCount) {
+                    val layoutManager = recyclerView.layoutManager as GridLayoutManager
+                    val visibleItemCount = layoutManager.childCount
+                    val totalItemCount = layoutManager.itemCount
+                    val firstVisibleItemPosition = layoutManager.findFirstVisibleItemPosition()
+                    if (visibleItemCount + firstVisibleItemPosition >= totalItemCount &&
+                        firstVisibleItemPosition >= 0 && totalItemCount >= mAdapter.currentList.size
+                    ) {
                         mPageQuery++
                         mPresenter.searchPhotos(mPageQuery)
                     }
@@ -185,5 +179,18 @@ class SearchFragment :
         mQueryList.removeAt(position)
         mSearchTextAdapter.notifyDataSetChanged()
         mPresenter.deleteQuery(id)
+    }
+
+    override fun selectQuery(query: String) {
+        mAdapter.submitList(null)
+        mPresenter.searchPhotos(query = query)
+        binding?.searchView?.isIconified = true
+        val inputMethodManager =
+            requireContext().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        inputMethodManager.hideSoftInputFromWindow(
+            binding?.searchView?.windowToken,
+            0,
+        )
+        binding?.searchView?.clearFocus()
     }
 }

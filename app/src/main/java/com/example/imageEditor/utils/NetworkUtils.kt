@@ -31,6 +31,7 @@ fun getMethodHttp(
             AUTHORIZATION,
             CLIENT_ID,
         )
+        conn.connectTimeout = TIME_OUT
         conn.connect()
 
         return convertInputStreamToString(conn.inputStream)
@@ -57,6 +58,7 @@ fun postMethodHttp(
             "application/json",
         )
         conn.setRequestProperty(ACCEPT, "application/json")
+        conn.connectTimeout = TIME_OUT
         conn.doOutput = true
 
         BufferedWriter(OutputStreamWriter(conn.outputStream)).use { writer ->
@@ -90,6 +92,7 @@ fun postMethodHttpWithBearToken(
             CONTENT_TYPE,
             "application/json",
         )
+        conn.connectTimeout = TIME_OUT
         conn.setRequestProperty(ACCEPT, "application/json")
         conn.setRequestProperty(AUTHORIZATION, "Bearer $bearerToken")
         conn.doOutput = true
@@ -134,6 +137,7 @@ fun getMethodHttpWithBearToken(
             CONTENT_TYPE,
             "application/json",
         )
+        conn.connectTimeout = TIME_OUT
         conn.setRequestProperty(ACCEPT, "application/json")
         conn.setRequestProperty(
             AUTHORIZATION,
@@ -175,6 +179,7 @@ fun deleteMethodHttpWithBearToken(
             AUTHORIZATION,
             "Bearer $bearerToken",
         )
+        conn.connectTimeout = TIME_OUT
         conn.connect()
 
         return if (conn.responseCode == HttpURLConnection.HTTP_UNAUTHORIZED) {

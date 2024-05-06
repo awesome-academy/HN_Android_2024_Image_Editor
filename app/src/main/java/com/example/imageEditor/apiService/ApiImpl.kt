@@ -29,12 +29,12 @@ import java.util.concurrent.FutureTask
 
 class ApiImpl(private val onListenProcess: OnListenProcess) : Api {
     private var mToken: String? = ""
+    private val executorService: ExecutorService = Executors.newFixedThreadPool(5)
 
     override fun getCollections(
         page: Int,
         onResult: (List<CollectionModel>?) -> Unit,
     ) {
-        val executorService: ExecutorService = Executors.newCachedThreadPool()
         val futureTask: CustomFuture<List<CollectionModel>> =
             CustomFuture(
                 Callable {
@@ -54,8 +54,6 @@ class ApiImpl(private val onListenProcess: OnListenProcess) : Api {
             onResult.invoke(futureTask.get())
         } catch (e: Exception) {
             onListenProcess.onError(Throwable(e))
-        } finally {
-            executorService.shutdown()
         }
     }
 
@@ -65,7 +63,6 @@ class ApiImpl(private val onListenProcess: OnListenProcess) : Api {
         perPage: Int?,
         onResult: (PhotoSearchModel?) -> Unit,
     ) {
-        val executorService: ExecutorService = Executors.newCachedThreadPool()
         val futureTask: CustomFuture<PhotoSearchModel> =
             CustomFuture(
                 Callable {
@@ -94,8 +91,6 @@ class ApiImpl(private val onListenProcess: OnListenProcess) : Api {
             onResult.invoke(futureTask.get())
         } catch (e: Exception) {
             onListenProcess.onError(Throwable(e))
-        } finally {
-            executorService.shutdown()
         }
     }
 
@@ -103,7 +98,6 @@ class ApiImpl(private val onListenProcess: OnListenProcess) : Api {
         body: AuthorizeRequest,
         onResult: (AuthorizeResponse) -> Unit,
     ) {
-        val executorService: ExecutorService = Executors.newCachedThreadPool()
         val futureTask: CustomFuture<AuthorizeResponse> =
             CustomFuture(
                 Callable {
@@ -129,8 +123,6 @@ class ApiImpl(private val onListenProcess: OnListenProcess) : Api {
             onResult.invoke(response)
         } catch (e: Exception) {
             onListenProcess.onError(Throwable(e))
-        } finally {
-            executorService.shutdown()
         }
     }
 
@@ -141,7 +133,6 @@ class ApiImpl(private val onListenProcess: OnListenProcess) : Api {
         if (mToken.isNullOrBlank()) {
             onFailure()
         }
-        val executorService: ExecutorService = Executors.newCachedThreadPool()
         val futureTask: FutureTask<Unit> =
             FutureTask(
                 Callable {
@@ -161,7 +152,11 @@ class ApiImpl(private val onListenProcess: OnListenProcess) : Api {
                     }
                 },
             )
-        executorService.submit(futureTask)
+        try {
+            executorService.submit(futureTask)
+        } catch (e: Exception) {
+            Log.e(">>>>>>>>>>", e.message.toString())
+        }
     }
 
     override fun dislikeImage(
@@ -171,7 +166,6 @@ class ApiImpl(private val onListenProcess: OnListenProcess) : Api {
         if (mToken.isNullOrBlank()) {
             onFailure()
         }
-        val executorService: ExecutorService = Executors.newCachedThreadPool()
         val futureTask: FutureTask<Unit> =
             FutureTask(
                 Callable {
@@ -190,7 +184,11 @@ class ApiImpl(private val onListenProcess: OnListenProcess) : Api {
                     }
                 },
             )
-        executorService.submit(futureTask)
+        try {
+            executorService.submit(futureTask)
+        } catch (e: Exception) {
+            Log.e(">>>>>>>>>>", e.message.toString())
+        }
     }
 
     override fun getFavoriteList(
@@ -220,6 +218,7 @@ class ApiImpl(private val onListenProcess: OnListenProcess) : Api {
                             ),
                         )
                     } catch (e: Exception) {
+                        Log.e(">>>>>>>>", e.message.toString())
                         throw Throwable(e)
                     }
                 },
@@ -230,8 +229,7 @@ class ApiImpl(private val onListenProcess: OnListenProcess) : Api {
             onResult.invoke(futureTask.get())
         } catch (e: Exception) {
             onListenProcess.onError(Throwable(e))
-        } finally {
-            executorService.shutdown()
+            Log.e(">>>>>>>>", e.message.toString())
         }
     }
 

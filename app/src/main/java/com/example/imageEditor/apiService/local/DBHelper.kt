@@ -10,30 +10,6 @@ import com.example.imageEditor.model.QueryModel
 
 class DBHelper(context: Context) :
     SQLiteOpenHelper(context, DATABASE_NAME, null, DATABASE_VERSION) {
-    companion object {
-        private const val DATABASE_NAME = "ImageEditor"
-        private const val DATABASE_VERSION = 1
-        private const val TABLE_NAME = "history"
-        private const val COLUMN_ID = "id"
-        private const val COLUMN_NAME = "name"
-
-        private var instance: DBHelper? = null
-
-        @JvmStatic
-        fun getInstance(context: Context): DBHelper {
-            if (instance == null) {
-                // Sử dụng synchronized để đảm bảo chỉ có một luồng có thể khởi tạo instance
-                synchronized(DBHelper::class.java) {
-                    // Kiểm tra lại instance trong synchronized block
-                    if (instance == null) {
-                        instance = DBHelper(context)
-                    }
-                }
-            }
-            return instance!!
-        }
-    }
-
     override fun onCreate(db: SQLiteDatabase) {
         // Tạo bảng nếu chưa tồn tại
         val createTableQuery =
@@ -95,5 +71,29 @@ class DBHelper(context: Context) :
         cursor?.close()
         db.close()
         return dataList
+    }
+
+    companion object {
+        private const val DATABASE_NAME = "ImageEditor"
+        private const val DATABASE_VERSION = 1
+        private const val TABLE_NAME = "history"
+        private const val COLUMN_ID = "id"
+        private const val COLUMN_NAME = "name"
+
+        private var instance: DBHelper? = null
+
+        @JvmStatic
+        fun getInstance(context: Context): DBHelper {
+            if (instance == null) {
+                // Sử dụng synchronized để đảm bảo chỉ có một luồng có thể khởi tạo instance
+                synchronized(DBHelper::class.java) {
+                    // Kiểm tra lại instance trong synchronized block
+                    if (instance == null) {
+                        instance = DBHelper(context)
+                    }
+                }
+            }
+            return instance!!
+        }
     }
 }
