@@ -21,11 +21,9 @@ class ImageDetailPresenter(private val mDetailRepository: DetailRepository) :
     }
 
     override fun onStart() {
-        TODO("Not yet implemented")
     }
 
     override fun onStop() {
-        TODO("Not yet implemented")
     }
 
     override fun setView(view: DetailContract.View?) {

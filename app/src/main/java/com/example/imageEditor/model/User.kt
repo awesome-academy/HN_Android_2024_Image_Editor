@@ -28,7 +28,7 @@ data class User(
     @SerializedName("profile_image")
     val profileImage: ProfileImage,
     @SerializedName("social")
-    val social: Social,
+    val social: Social? = null,
     @SerializedName("total_collections")
     val totalCollections: Int,
     @SerializedName("total_illustrations")

@@ -17,11 +17,9 @@ class CreateImagePresenter(private val createImageRepository: CreateImageReposit
     }
 
     override fun onStart() {
-        TODO("Not yet implemented")
     }
 
     override fun onStop() {
-        TODO("Not yet implemented")
     }
 
     override fun setView(view: CreateImageContract.View?) {
