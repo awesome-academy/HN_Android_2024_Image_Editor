@@ -42,11 +42,9 @@ class SearchPresenter(private val searchRepository: SearchRepository) : SearchCo
     }
 
     override fun onStart() {
-        TODO("Not yet implemented")
     }
 
     override fun onStop() {
-        TODO("Not yet implemented")
     }
 
     override fun setView(view: SearchContract.View?) {

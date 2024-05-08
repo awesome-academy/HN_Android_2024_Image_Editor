@@ -24,11 +24,9 @@ class AuthorizePresenter(private val authorizeRepository: AuthorizeRepository) :
     }
 
     override fun onStart() {
-        TODO("Not yet implemented")
     }
 
     override fun onStop() {
-        TODO("Not yet implemented")
     }
 
     override fun setView(view: AuthorizeContract.View?) {

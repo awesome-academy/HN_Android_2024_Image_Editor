@@ -4,7 +4,7 @@ import com.google.gson.annotations.SerializedName
 
 data class Tag(
     @SerializedName("source")
-    val source: Source,
+    val source: Source? = null,
     @SerializedName("title")
     val title: String,
     @SerializedName("type")

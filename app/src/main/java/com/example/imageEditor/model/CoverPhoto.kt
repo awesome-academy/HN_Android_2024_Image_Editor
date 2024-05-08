@@ -38,7 +38,7 @@ data class CoverPhoto(
     @SerializedName("sponsorship")
     val sponsorship: Any,
     @SerializedName("topic_submissions")
-    val topicSubmissions: TopicSubmissions,
+    val topicSubmissions: TopicSubmissions? = null,
     @SerializedName("updated_at")
     val updatedAt: String,
     @SerializedName("urls")

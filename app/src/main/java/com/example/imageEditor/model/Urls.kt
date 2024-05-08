@@ -12,7 +12,7 @@ data class Urls(
     @SerializedName("small")
     val small: String,
     @SerializedName("small_s3")
-    val smallS3: String,
+    val smallS3: String = "",
     @SerializedName("thumb")
     val thumb: String,
 )
